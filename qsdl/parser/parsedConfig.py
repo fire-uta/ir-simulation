@@ -39,11 +39,25 @@ class ConfigDescriptor(object):
                     session.gainsMap = get_gains_map( session.gains )
                 map_[ session.id ] = session
             return map_
+
+        def get_run_map():
+            map_ = {}
+            if not hasattr(self.doc, 'runs'):
+                map_['default'] = {}
+                return map_
+            for run in self.doc.runs.run:
+                run.probabilities = get_probabilities_map(run)
+                map_[run.id] = run
+            return map_
+
+        def get_probabilities_map(run):
+            return dict([[probability.name, probability.value()] for probability in run.probability])
         
         self.defaultGains = get_gains_map( self.doc.defaults.gains )
         self.defaultGains = dict( 
             [ [ gain.relevance_level, gain.gain ] for gain in self.doc.defaults.gains.gain ] )
         self.sessions = get_session_map()
+        self.runs = get_run_map()
         
         # Relevances
         self.relevances = {}
@@ -52,7 +66,14 @@ class ConfigDescriptor(object):
                 self.get_input_directory() + relFile.value() )['get_relevances']() 
                 for relFile in self.doc.files.relevance_file ]:
                     self.relevances.update( rels )
-        
+
+    def get_variable_probability_value(self, runId, variableName):
+        run = self.runs[runId]
+        return run.probabilities[variableName]
+
+    def get_run_id_iterator(self):
+        return self.runs.iterkeys()
+
     def get_gain(self, sessionId, documentRelevanceLevel):
         session = self.get_session(sessionId)
         if hasattr( session, 'gains' ):
@@ -179,10 +200,10 @@ class ConfigDescriptor(object):
         session = self.get_session( sessionId )
         return sessionReader.get_session_reader(session, self)
 
-    def get_output_file(self, sessionId, fileMode):
+    def get_output_file(self, sessionId, fileMode, runId):
         session = self.get_session( sessionId )
         if hasattr( session.output, 'file' ) and session.output.file != None:
-            return file( session.output.file, fileMode )
+            return file( runId + '_' + session.output.file, fileMode )
         return sys.stdout # default: write to stdout
     
     def get_output_format(self, sessionId):
@@ -220,14 +241,14 @@ class ConfigDescriptor(object):
             raise ConfigurationMissingError( \
                 'Number of iterations missing for session id ' + str(session.id) ) 
         
-    def get_output_writer(self, runs, seed, configFileName):
+    def get_output_writer(self, runs, seed, configFileName, runId):
         
         # File writer
         def write():
             firstRun = runs[0]
             sessId = firstRun.get_session_id()
             formatter = self.get_output_formatter( sessId )
-            file_ = self.get_output_file( sessId, formatter[ 'get_file_mode' ]() )
+            file_ = self.get_output_file(sessId, formatter['get_file_mode'](), runId)
             file_.write( formatter[ 'set_up' ]() + '\n' )
             file_.write( formatter[ 'format_history' ]( runs ) + '\n' )
             file_.write( formatter[ 'format_stats' ]( runs ) + '\n' )
