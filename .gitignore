@@ -1,0 +1,6 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# sdist manifest file (auto-generated)
+MANIFEST
