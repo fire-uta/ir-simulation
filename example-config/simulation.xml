@@ -1,0 +1,218 @@
+<?xml version="1.0"?>
+<qsdl xmlns="urn:X-fi-uta-sis-fire:qsdl"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="urn:X-fi-uta-sis-fire:qsdl qsdl-0.1.xsd">
+ <actions initial="query_first">
+
+  <!-- First query in session -->
+  <action id="query_first" cost="current_query">
+   <trigger type="jumpToQuery">
+    <argument name="qidx" value="0" />
+   </trigger>
+  </action>
+
+  <!-- Go to next query -->
+  <action id="next_query" cost="current_query">
+   <trigger type="nextQuery" />
+  </action>
+
+  <!-- Scan a summary -->
+  <action id="scan_one_summary" cost="scan_one_summary">
+   <trigger type="nextDocument" />
+   <!-- <trigger type="dummy" />  -->
+  </action>
+  
+  <!-- Read a whole document to judge its relevance -->
+  <action id="read_document" cost="read_document">
+   <trigger type="flagAsSeen" />
+  </action>
+
+  <!-- Skip to the next page of query results -->
+  <action id="turn_page" cost="turn_page" />
+  
+  <!-- Judge document as relevant -->
+  <action id="judge_as_relevant" gain="current_document" />
+   
+   <!-- End of simulation. (It is possible to have several ends) -->
+  <action id="give_up" final="true" />
+  <action id="natural_end" final="true" />
+  <action id="stop_at_max_rank" final="true" />
+  
+ </actions>
+ 
+ <costs>
+  <cost id="current_query">
+   <callback name="get_default_current_query_cost">
+    <argument name="key_cost" value="0.28" />
+   </callback>
+  </cost>
+  <!-- 
+  <cost id="dummy">
+   <callback name="dummy" />
+  </cost>
+   -->
+  <cost id="scan_one_summary">
+   <value>19</value>
+  </cost>
+  <cost id="read_document">
+   <value>90</value>
+  </cost>
+  <cost id="turn_page">
+   <value>2</value>
+  </cost>
+ </costs>
+ 
+ <gains>
+  <gain id="current_document">
+   <callback name="get_current_document_gain" />
+  </gain>
+  <!-- 
+  <gain id="dummy">
+   <callback name="dummy" />
+  </gain>
+   -->
+  <!-- 
+  <gain id="current_document">
+   <callback name="dummy" />
+  </gain>
+   -->
+ </gains>
+ 
+ <decays>
+  <decay id="frustration">
+   <callback name="calculate_frustration">
+    <argument name="maxCost" value="1000" />
+    <argument name="strength" value="0" />
+   </callback>
+  </decay>
+  <!-- <decay id="dummy"><callback name="dummy" /></decay>  -->
+ </decays>
+ 
+ <!-- All possible transitions between actions -->
+ <transitions>
+  <from source="query_first">
+   <to target="scan_one_summary" probability="always" />
+  </from>
+  <from source="next_query">
+   <to target="scan_one_summary" probability="always"  />
+  </from>
+  <from source="scan_one_summary" decay="frustration">
+   <to target="read_document" probability="decide_to_read" decay-effect="-" />
+   <to target="scan_one_summary" probability="skip_to_next" decay-effect="-" />
+   <to target="turn_page" probability="skip_to_next_page" />
+   <to target="natural_end" probability="natural_end" />
+   <to target="give_up" probability="give_up" decay-effect="+" />
+   <to target="next_query" probability="skip_to_next_query" />
+   <to target="stop_at_max_rank" probability="change_strategy_point_reached" />
+  </from>
+  <from source="read_document" decay="frustration">
+   <to target="scan_one_summary" probability="skip_to_next" decay-effect="-" />
+   <to target="turn_page" probability="skip_to_next_page" />
+   <to target="judge_as_relevant" probability="judge_as_relevant" decay-effect="-" />
+   <to target="give_up" probability="give_up" decay-effect="+" />
+   <to target="natural_end" probability="natural_end" />
+   <to target="next_query" probability="skip_to_next_query" />
+   <to target="stop_at_max_rank" probability="change_strategy_point_reached" />
+  </from>
+  <from source="judge_as_relevant" decay="frustration">
+   <to target="scan_one_summary" probability="skip_to_next" decay-effect="-" />
+   <to target="turn_page" probability="skip_to_next_page" />
+   <to target="natural_end" probability="natural_end" />
+   <to target="give_up" probability="give_up" decay-effect="+" />
+   <to target="next_query" probability="skip_to_next_query" />
+   <to target="stop_at_max_rank" probability="change_strategy_point_reached" />
+  </from>
+  <from source="turn_page">
+   <to target="scan_one_summary" probability="always" />
+  </from>
+ </transitions>
+ 
+ <!-- All probabilities are declared here -->
+ <probabilities>
+  <probability id="always">
+   <value>1</value>
+  </probability>
+  <probability id="never">
+   <value>0</value>
+  </probability>
+  <probability id="decide_to_read">
+   <!-- Conditional probability -->
+   <if condition="document_is_relevant" value="0.73" />
+   <else value="0.4" />
+  </probability>
+  <probability id="skip_to_next">
+   <if condition="end_of_page" value="0" />
+   <!-- <else-if condition="no_more_documents" value="0" /> -->
+   <!-- Calculated at run time as 1 - sum( P(t_i) ) where P(t_i) are the 
+   probabilities of other possible transitions at this point. Run time
+   error if cannot be calculated. -->
+   <else value="*" /> 
+  </probability>
+  <probability id="skip_to_next_page">
+   <if condition="end_of_page" negation="true" value="0" />
+   <!-- <else-if condition="no_more_documents" value="0" />  -->
+   <else value="*" />
+  </probability>
+  <probability id="skip_to_next_query">
+   <if condition="change_strategy" value="1" />
+   <else value="0" />
+  </probability>
+  <probability id="change_strategy_point_reached">
+   <if condition="no_more_queries" negation="true" value="0" />
+   <else-if condition="change_strategy" value="1" />
+   <else value="0" />
+  </probability>
+  <probability id="judge_as_relevant">
+   <if condition="document_is_relevant" value="0.7" />
+   <else value="0.1" />
+  </probability>
+  <probability id="give_up">
+   <value>0</value>
+  </probability>
+  <probability id="natural_end">
+   <if condition="gain_goal_reached" value="1" />
+   <else-if condition="cost_limit_reached" value="1" />
+   <else-if condition="rank_limit_reached" value="1" />
+   <else value="0" />
+  </probability>
+ </probabilities>
+  
+ <!-- Run-time conditions for calculating probabilities -->
+ <probability-conditions>
+  <probability-condition id="document_is_relevant">
+   <callback name="default_current_document_is_relevant">
+    <argument name="min_relevance" value="1" />
+   </callback>
+  </probability-condition>
+  <probability-condition id="end_of_page">
+   <callback name="default_current_document_is_last_on_page" />
+  </probability-condition>
+  <probability-condition id="no_more_documents">
+   <callback name="default_current_document_is_ranked_last" />
+  </probability-condition>
+  <probability-condition id="no_more_queries">
+   <callback name="default_current_query_is_last" />
+  </probability-condition>
+  <probability-condition id="gain_goal_reached">
+   <callback name="default_gain_exceeded">
+    <argument name="gain_limit" value="9999" />
+   </callback>
+  </probability-condition>
+  <probability-condition id="cost_limit_reached">
+   <callback name="default_cost_exceeded">
+    <argument name="cost_limit" value="1000" />
+   </callback>
+  </probability-condition>
+  <probability-condition id="rank_limit_reached">
+   <callback name="default_total_rank_exceeded">
+    <argument name="rank_limit" value="20" />
+   </callback>
+  </probability-condition>
+  <probability-condition id="change_strategy">
+   <callback name="default_query_rank_exceeded">
+    <argument name="rank_limit" value="3" />
+   </callback>
+  </probability-condition>
+ </probability-conditions>
+   
+</qsdl>

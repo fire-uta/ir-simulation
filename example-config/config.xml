@@ -1,0 +1,101 @@
+<qsconf xmlns="urn:X-fi-uta-sis-fire:qs-config"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="urn:X-fi-uta-sis-fire:qs-config config-0.1.xsd">
+
+ <files>
+  <input-directory>ex</input-directory>
+  <relevance-file format="trec2" id="rel1">histrelcorp-3_and_34.txt</relevance-file>
+  <simulation>simulation.xml</simulation>
+  <!-- 
+  <condition-callbacks>conditionsTest.py</condition-callbacks>
+  <cost-callbacks>costsTest.py</cost-callbacks>
+  <decay-callbacks>decaysTest.py</decay-callbacks>
+  <derived-gains-callbacks>derivedGainsTest.py</derived-gains-callbacks>
+  <gain-callbacks>gainsTest.py</gain-callbacks>
+  <trigger-callbacks>triggersTest.py</trigger-callbacks>
+   -->
+ </files>
+
+ <sessions>
+  <session id="t4s1">
+   <use-queries query-file="topic4_query1" result-file="topic4_query1_results" query-file-format="indri" result-file-format="trec" />
+   <use-queries query-file="topic4_query2" result-file="topic4_query2_results" />
+   <use-queries query-file="topic4_query3" result-file="topic4_query3_results" />
+   <output>
+    <file>topic4_out.csv</file>
+   </output>
+  </session>
+  <session id="t34s1">
+   <use-queries query-file="topic34_query1" result-file="topic34_query1_result" />
+   <use-queries query-file="topic34_query2" result-file="topic34_query2_result" />
+   <use-queries query-file="topic34_query3" result-file="topic34_query3_result" />
+   <output>
+    <format>python</format>
+    <file>topic34_out.py</file>
+    <figures>
+     <custom-figure id="cust2">
+      <xaxis>
+       <range>cost</range>
+       <increments>10</increments>
+      </xaxis>
+      <yaxis label="Gain">
+       <values label="avg dcg" function="average_derived_gain">
+        <argument name="gainId" value="dcg" />
+       </values>
+       <values label="avg cg" function="average_cumulated_gain" />
+      </yaxis>
+     </custom-figure>
+    </figures>
+   </output>
+  </session>
+ </sessions>
+ 
+ <defaults>
+  <gains>
+   <gain relevance-level="0" gain="0" />
+   <gain relevance-level="1" gain="1" />
+   <gain relevance-level="2" gain="10" />
+   <gain relevance-level="3" gain="100" />
+  </gains>
+  <sessions>
+   <query-file-format>indri</query-file-format>
+   <result-file-format>trec</result-file-format>
+   <relevance-file-format>trec2</relevance-file-format>
+  </sessions>
+  <output>
+   <format>csv</format>
+   <gain-types>
+    <type id="dcg" function="calc_dcg">
+     <argument name="base" value="2" />
+    </type>
+    <!-- <type id="dummy" function="dummy" />  -->
+   </gain-types>
+   <figures>
+    <custom-figure id="cust1">
+     <xaxis>
+      <range>rank</range>
+      <increments>1</increments>
+     </xaxis>
+     <yaxis label="Gain">
+      <values label="avg dcg" function="average_derived_gain">
+       <argument name="gainId" value="dcg" />
+      </values>
+      <values label="avg cg" function="average_cumulated_gain" />
+     </yaxis>
+    </custom-figure>
+   </figures>
+  </output>
+  <page-size>5</page-size>
+  <iterations>50</iterations>
+ </defaults>
+ 
+ <options>
+  <ignore-missing-relevance-data>true</ignore-missing-relevance-data>
+  <missing-relevance-level>0</missing-relevance-level>
+  <show-seed>true</show-seed>
+  <show-input-files>true</show-input-files>
+  <!-- <random-seed>869903750</random-seed>  -->
+  <verbose-output>false</verbose-output>
+ </options>
+ 
+</qsconf>

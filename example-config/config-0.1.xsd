@@ -1,0 +1,291 @@
+<?xml version="1.0"?>
+<xs:schema 
+ targetNamespace="urn:X-fi-uta-sis-fire:qs-config" 
+ xmlns:config="urn:X-fi-uta-sis-fire:qs-config"
+ xmlns:xs="http://www.w3.org/2001/XMLSchema" >
+
+ <!-- Root element -->
+ <xs:element name="qsconf">
+  <xs:complexType>
+   <xs:all>
+    <xs:element name="files" type="config:files" form="qualified" />
+    <xs:element name="sessions" type="config:sessions" form="qualified" />
+    <xs:element name="defaults" type="config:defaults" form="qualified" />
+    <xs:element name="options" type="config:options" form="qualified" minOccurs="0" />
+    <xs:element name="runs" type="config:runs" form="qualified" minOccurs="0" />
+   </xs:all>
+  </xs:complexType>
+  
+  <xs:key name="session-id">
+   <xs:selector xpath="config:sessions/config:session" />
+   <xs:field xpath="@id" />
+  </xs:key>
+  
+  <xs:unique name="gain-relevance-level">
+   <xs:selector xpath="config:defaults/config:gains/config:gain" />
+   <xs:field xpath="@relevance-level" />
+  </xs:unique>
+     
+ </xs:element>
+
+ <!-- TODO: move to external file, since this is used in both config and qsdl -->
+ <xs:simpleType name="probability-value-direct">
+  <xs:restriction base="xs:decimal">
+   <xs:minInclusive value="0.0" />
+   <xs:maxInclusive value="1.0" />
+  </xs:restriction>
+ </xs:simpleType>
+
+ <!-- TODO: move to external file, since this is used in both config and qsdl -->
+ <xs:simpleType name="probability-value-variable">
+  <xs:restriction base="xs:string">
+   <xs:pattern value="\$[A-Za-z0-9]+" />
+  </xs:restriction>
+ </xs:simpleType>
+
+ <xs:complexType name="runs">
+  <xs:sequence>
+   <xs:element name="run" minOccurs="1" maxOccurs="unbounded" form="qualified">
+    <xs:complexType>
+     <xs:sequence>
+      <xs:element name="probability" minOccurs="0" maxOccurs="unbounded" form="qualified">
+       <xs:complexType>
+        <xs:simpleContent>
+         <xs:extension base="config:probability-value-direct">
+          <xs:attribute name="name" type="config:probability-value-variable" use="required" />
+         </xs:extension>
+        </xs:simpleContent>
+       </xs:complexType>
+      </xs:element>
+     </xs:sequence>
+    </xs:complexType>
+   </xs:element>
+  </xs:sequence>
+ </xs:complexType>
+ 
+ <xs:complexType name="files">
+  <xs:sequence>
+   <xs:element name="input-directory" type="xs:string" minOccurs="0" maxOccurs="1" form="qualified" />
+   <xs:element name="relevance-file" type="config:relevance-file" minOccurs="1" maxOccurs="unbounded" form="qualified" />
+   <xs:element name="simulation" type="xs:string" form="qualified" />
+   <xs:element name="condition-callbacks" default="customConditionCallbacks.py" minOccurs="0" type="xs:string" form="qualified" />
+   <xs:element name="cost-callbacks" default="customCostCallbacks.py" minOccurs="0" type="xs:string" form="qualified" />
+   <xs:element name="decay-callbacks" default="customDecayCallbacks.py" minOccurs="0" type="xs:string" form="qualified" />
+   <xs:element name="derived-gains-callbacks" default="customDerivedGainsCallbacks.py" minOccurs="0" type="xs:string" form="qualified" />
+   <xs:element name="gain-callbacks" default="customGainCallbacks.py" minOccurs="0" type="xs:string" form="qualified" />
+   <xs:element name="trigger-callbacks" default="customTriggerCallbacks.py" minOccurs="0" type="xs:string" form="qualified" />
+  </xs:sequence>
+ </xs:complexType>
+ 
+ <xs:complexType name="query-file">
+  <xs:simpleContent>
+   <xs:extension base="xs:string">
+    <xs:attribute name="format" type="config:query-file-format" />
+    <xs:attribute name="id" use="required" type="xs:string" />
+   </xs:extension>
+  </xs:simpleContent>
+ </xs:complexType>
+ 
+ <xs:complexType name="result-file">
+  <xs:simpleContent>
+   <xs:extension base="xs:string">
+    <xs:attribute name="format" type="config:results-file-format" />
+    <xs:attribute name="id" use="required" type="xs:string" />
+   </xs:extension>
+  </xs:simpleContent>
+ </xs:complexType>
+ 
+ <xs:complexType name="relevance-file">
+  <xs:simpleContent>
+   <xs:extension base="xs:string">
+    <xs:attribute name="format" type="config:relevance-file-format" />
+    <xs:attribute name="id" use="required" type="xs:string" />
+   </xs:extension>
+  </xs:simpleContent>
+ </xs:complexType>
+ 
+ <!-- Topics element type -->
+ <xs:complexType name="sessions">
+  <xs:sequence>
+   <xs:element name="session" minOccurs="1" maxOccurs="unbounded" form="qualified">
+    <xs:complexType>
+     <xs:sequence>
+      <xs:element name="use-queries" form="qualified" type="config:use-queries" minOccurs="1" maxOccurs="unbounded" />
+      <xs:element name="iterations" minOccurs="0" maxOccurs="1" type="xs:integer" form="qualified" />
+      <xs:element name="page-size" minOccurs="0" maxOccurs="1" type="xs:integer" form="qualified" />
+      <xs:element name="output" type="config:session-output" form="qualified" />
+     </xs:sequence>
+     <xs:attribute name="id" use="required" type="xs:string" />
+    </xs:complexType>
+   </xs:element>
+  </xs:sequence>
+ </xs:complexType>
+ 
+ <xs:complexType name="use-queries">
+  <xs:attribute name="query-file" type="xs:string" use="required" />
+  <xs:attribute name="topics" type="xs:string" />
+  <xs:attribute name="result-file" type="xs:string" use="required" />
+  <xs:attribute name="query-file-format" type="config:query-file-format" use="optional" />
+  <xs:attribute name="result-file-format" type="config:results-file-format" use="optional" />
+ </xs:complexType>
+ 
+ <!-- Defaults element type -->
+ <xs:complexType name="defaults">
+  <xs:all>
+   <xs:element name="sessions" form="qualified">
+    <xs:complexType>
+     <xs:sequence>
+      <xs:element name="query-file-format" minOccurs="0" maxOccurs="1" type="config:query-file-format" form="qualified" default="indri" />
+      <xs:element name="result-file-format" minOccurs="0" maxOccurs="1" type="config:results-file-format" form="qualified" default="trec" />
+      <xs:element name="relevance-file-format" minOccurs="0" maxOccurs="1" type="config:relevance-file-format" form="qualified" default="trec" />
+     </xs:sequence>
+    </xs:complexType>
+   </xs:element>
+   <xs:element name="gains" form="qualified">
+    <xs:complexType>
+     <xs:sequence>
+      <xs:element name="gain" form="qualified" minOccurs="1" maxOccurs="unbounded">
+       <xs:complexType>
+        <xs:attribute name="relevance-level" type="xs:string" use="required" />
+        <xs:attribute name="gain" type="xs:decimal" use="required" />
+       </xs:complexType>
+      </xs:element>
+     </xs:sequence>
+    </xs:complexType>
+   </xs:element>
+   <xs:element name="iterations" minOccurs="0" maxOccurs="1" type="xs:integer" form="qualified" default="1" />
+   <xs:element name="page-size" minOccurs="0" maxOccurs="1" type="xs:integer" form="qualified" default="10" />
+   <xs:element name="output" minOccurs="0" maxOccurs="1" type="config:default-output" form="qualified" />
+  </xs:all>
+ </xs:complexType>
+ 
+ <xs:complexType name="options">
+  <xs:all>
+   <xs:element name="ignore-missing-relevance-data" minOccurs="0" form="qualified" default="false" type="xs:boolean" />
+   <xs:element name="missing-relevance-level" minOccurs="0" form="qualified" type="xs:string" />
+   <xs:element name="show-seed" minOccurs="0" maxOccurs="1" type="xs:boolean" form="qualified" default="false" />
+   <xs:element name="show-input-files" minOccurs="0" maxOccurs="1" type="xs:boolean" form="qualified" default="true" />
+   <xs:element name="random-seed" minOccurs="0" maxOccurs="1" type="xs:integer" form="qualified" />
+   <xs:element name="verbose-output" minOccurs="0" maxOccurs="1" type="xs:boolean" form="qualified" default="false" />
+  </xs:all>
+ </xs:complexType>
+ 
+ <!-- Output element type -->
+ <xs:complexType name="session-output">
+  <xs:all>
+   <xs:element name="format" minOccurs="0" maxOccurs="1" form="qualified" type="config:output-file-format" />
+   <xs:element name="file" minOccurs="0" maxOccurs="1" form="qualified" type="xs:string" />
+   <xs:element name="gain-types" minOccurs="0" maxOccurs="1" form="qualified" type="config:gain-types" />
+   <xs:element name="figures" minOccurs="0" maxOccurs="1" form="qualified" type="config:figures" />
+  </xs:all>
+ </xs:complexType>
+ 
+ <xs:complexType name="default-output">
+  <xs:all>
+   <xs:element name="format" minOccurs="0" maxOccurs="1" form="qualified" type="config:output-file-format" />
+   <xs:element name="gain-types" minOccurs="0" maxOccurs="1" form="qualified" type="config:gain-types" />
+   <xs:element name="figures" minOccurs="0" maxOccurs="1" form="qualified" type="config:figures" />
+  </xs:all>
+ </xs:complexType>
+ 
+ <xs:complexType name="gain-types">
+  <xs:sequence>
+   <xs:element name="type" minOccurs="1" maxOccurs="unbounded" form="qualified">
+    <xs:complexType>
+     <xs:sequence>
+      <xs:element name="argument" minOccurs="0" maxOccurs="unbounded" form="qualified">
+       <xs:complexType>
+        <xs:attribute name="name" use="required" type="xs:string" />
+        <xs:attribute name="value" use="required" type="xs:string" />
+       </xs:complexType>
+      </xs:element>
+     </xs:sequence>
+     <xs:attribute name="id" use="required" type="xs:string" />
+     <xs:attribute name="function" use="required" type="xs:string" />
+    </xs:complexType>
+   </xs:element>
+  </xs:sequence>
+ </xs:complexType>
+ 
+ <xs:complexType name="figures">
+  <xs:sequence>
+   <xs:element name="custom-figure" minOccurs="0" maxOccurs="unbounded" form="qualified">
+    <xs:complexType>
+     <xs:all>
+      <xs:element name="xaxis" minOccurs="1" maxOccurs="1" form="qualified">
+       <xs:complexType>
+        <xs:all>
+         <xs:element name="range" minOccurs="1" maxOccurs="1" form="qualified" type="config:ranges" />
+         <xs:element name="increments" minOccurs="1" maxOccurs="1" form="qualified" type="xs:integer" />
+        </xs:all>
+       </xs:complexType>
+      </xs:element>
+      <xs:element name="yaxis" minOccurs="1" maxOccurs="1" form="qualified">
+       <xs:complexType>
+        <xs:sequence>
+         <xs:element name="values" minOccurs="1" maxOccurs="unbounded" form="qualified" >
+          <xs:complexType>
+           <xs:sequence>
+            <xs:element name="argument" minOccurs="0" maxOccurs="unbounded" form="qualified">
+             <xs:complexType>
+              <xs:attribute name="name" type="xs:string" use="required" />
+              <xs:attribute name="value" type="xs:string" use="required" />
+             </xs:complexType>
+            </xs:element>
+           </xs:sequence>
+           <xs:attribute name="label" type="xs:string" use="required" />
+           <xs:attribute name="function" type="xs:string" use="required" />
+          </xs:complexType>
+         </xs:element>
+        </xs:sequence>
+        <xs:attribute name="label" type="xs:string" use="required" />
+       </xs:complexType>
+      </xs:element>
+     </xs:all>
+     <xs:attribute name="id" type="xs:string" use="required" />
+    </xs:complexType>
+   </xs:element>
+  </xs:sequence>
+ </xs:complexType>
+ 
+ <!-- Query file formats -->
+ <xs:simpleType name="query-file-format">
+  <xs:restriction base="xs:string">
+   <xs:enumeration value="indri" />
+  </xs:restriction>
+ </xs:simpleType>
+ 
+ <!-- Result file formats -->
+ <xs:simpleType name="results-file-format">
+  <xs:restriction base="xs:string">
+   <xs:enumeration value="trecweb" />
+   <xs:enumeration value="trec" />
+  </xs:restriction>
+ </xs:simpleType>
+ 
+ <!-- Relevance file formats -->
+ <xs:simpleType name="relevance-file-format">
+  <xs:restriction base="xs:string">
+   <xs:enumeration value="trec" />
+   <xs:enumeration value="trec2" />
+  </xs:restriction>
+ </xs:simpleType>
+  
+ <!-- Output formats -->
+ <xs:simpleType name="output-file-format">
+  <xs:restriction base="xs:string">
+   <xs:enumeration value="default" />
+   <xs:enumeration value="python" />
+   <xs:enumeration value="csv" />
+  </xs:restriction>
+ </xs:simpleType>
+ 
+ <!-- Range axes for custom figures -->
+ <xs:simpleType name="ranges">
+  <xs:restriction base="xs:string">
+   <xs:enumeration value="cost" />
+   <xs:enumeration value="rank" />
+  </xs:restriction>
+ </xs:simpleType>
+
+</xs:schema>

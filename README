@@ -1,0 +1,488 @@
+IRSIM - Information Retrieval Simulator
+Version 0.0.1-SNAPSHOT
+Copyright (C) 2012 Finnish Information Retrieval Experts group, University of Tampere
+Author: Teemu Pääkkönen
+http://github.com/fire-uta/ir-simulation
+
+README v. 2012.12.06
+
+1. INTRODUCTION
+
+IRSIM is a command line program that simulates an end user using 
+a search engine to retrieve information about one or more topics,
+using one or several different strategies. Cumulated gain and cost is
+calculated for each simulation run.
+
+2. GENERAL DESCRIPTION
+
+The program takes lemur/indri parameter files and trec format result
+files as input. In addition, the program requires document relevance
+files in trec format, a simulator descriptor file in QSDL format, and
+an IRSIM configuration file. An example of each is provided in the
+`example-config` directory. The simulator descriptor and the
+configuration can be used with only slight modifications to one or
+both files.
+
+The simulation advances according to the actions, transitions and
+probabilities defined in the simulator descriptor. Each action
+represents the user taking some action, transitions represent the
+user deciding to take another action, and the probabilities
+represent the likelihood of the user choosing to take the action.
+
+The program outputs a result file that contains the sequence of
+events that took place during the simulation, the calculated
+cumulated gain, and statistics. The results can be viewed in either
+CSV or Python format. Various graphs can also be plotted and output
+into PNG files.
+
+3. CLI OPTIONS
+
+There is one command line argument - the configuration file name.
+If no argument is supplied, the default name, `config.xml`,
+is used.
+
+4. INSTALLATION AND PRE-REQUISITES
+
+In order to use the simulator, the following software must be
+installed:
+
+ Python 2.6 or later
+ PyXB python library version 1.2.0 or later
+ Matplotlib python library version 1.1.1 or later
+
+The program itself requires no installation. Just extract the
+package in whatever directory you wish.
+
+5. QUICK EXAMPLE
+
+The quickest way to see example output is to run the example in
+the `example-config` directory. Open a command line or terminal
+window into the directory (in Windows 7 you can Shift-Right-click
+the folder and select "open command window here" from the context
+menu). Type `python ..\irsim.py`. See the produced output files to
+see what you can expect from the program.
+
+6. SIMULATOR DESCRIPTOR, QSDL FORMAT
+
+The descriptor file is an XML file that contains the following
+sections:
+
+ Actions
+ Costs
+ Gains
+ Decays
+ Transitions
+ Probabilities
+ Probability conditions
+
+6.1 Actions
+
+--- Example ---
+ <actions initial="query_first">
+  ...
+  <action id="query_first" cost="current_query">
+   <trigger type="jumpToQuery">
+    <argument name="qidx" value="0" />
+   </trigger>
+  </action>
+  ...
+  <action id="judge_as_relevant" gain="current_document" />
+  ...
+  <action id="stop_at_max_rank" final="true" />
+  ...
+ </actions>
+--- Example ends ---
+
+An action describes the user's decision to do something regarding
+the current set of queries and results. An action corresponds to
+a state in the simulator state machine model. Each action must at
+least have an ID. 
+
+One of the actions must be labeled as the initial
+action, and one or more of the actions must be labeled as final
+actions, where the simulation ends.
+
+Each action can be associated with a trigger that corresponds
+to some internal event in the simulator. For example, a trigger
+can tell the simulator to advance to the next document or next
+query, or tell it that the current document has been read. New
+triggers can be defined with callbacks.
+
+Currently, the following triggers have been pre-defined:
+ jumpToQuery(qidx), for jumping to a certain query
+ nextQuery, for advancing to the next query
+ nextDocument, for advancing to the next document
+ flagAsSeen, for marking the document as having been seen
+
+6.2 Costs
+
+--- Example ---
+  <cost id="current_query">
+   <callback name="get_default_current_query_cost">
+    <argument name="key_cost" value="0.28" />
+   </callback>
+  </cost>
+  
+  <cost id="scan_one_summary">
+   <value>19</value>
+  </cost>
+--- Example ends ---
+  
+A cost is an arbitrary measure. It can, for example, be defined as
+the amount of time taken to complete an action. A cost can be 
+associated with any action. The simulator calculates the cost
+after every action, and keeps track of cumulated cost over the
+whole simulation run.
+
+A cost can either be defined as a direct value, or calculated via
+a callback function.
+
+The following cost callbacks have been pre-defined:
+ get_default_current_query_cost( key_cost )
+
+
+6.3 Gains
+
+--- Example ---
+  <gain id="current_document">
+   <callback name="get_current_document_gain" />
+  </gain>
+--- Example ends ---
+
+A gain measures how much the user benefits from an action. A gain
+can be associated with any action. The simulator calculates the gain
+after each action, keeping track of cumulated gain over the simulation
+run. 
+
+In addition, derived gains can be defined in the configuration
+file. Calculation of DCG is provided as an example.
+
+A gain can either be defined as a direct value, or calculated via
+a callback function.
+
+Relevance levels are mapped to gain values in the configuration file.
+
+The following gain callbacks have been pre-defined:
+ get_current_document_gain()
+
+6.4 Decays
+
+--- Example ---
+  <decay id="frustration">
+   <callback name="calculate_frustration">
+    <argument name="maxCost" value="1000" />
+    <argument name="strength" value="0" />
+   </callback>
+  </decay>
+--- Example ends ---
+  
+A decay modifies the probabilities of transitions by a fixed or
+calculated number. A decay is associated with an action, and it can
+affect all the transitions that originate from that action. Each 
+transition can be marked with a decay-effect modifier that is either
+'+' (positive), '-' (negative) or '=' (no effect). A positive effect
+means that the probability is increased by the amount defined by
+the decay. For negative effect, the probability is decreased. 'No
+effect' is the default.
+
+6.5 Transitions
+
+ <transitions>
+  ...
+  <from source="scan_one_summary" decay="frustration">
+   <to target="read_document" probability="decide_to_read" decay-effect="-" />
+   <to target="scan_one_summary" probability="skip_to_next" decay-effect="-" />
+   <to target="turn_page" probability="skip_to_next_page" />
+   <to target="natural_end" probability="natural_end" />
+   <to target="give_up" probability="give_up" decay-effect="+" />
+   <to target="next_query" probability="skip_to_next_query" />
+   <to target="stop_at_max_rank" probability="change_strategy_point_reached" />
+  </from>
+  ...
+ </transitions>
+
+A transition advances the simulation from one action to another.
+Transitions are defined by declaring all the possible next actions
+for a given action. No transitions can be defined for the final
+action.
+
+6.6 Probabilities
+
+--- Example ---
+  <probability id="natural_end">
+   <if condition="gain_goal_reached" value="1" />
+   <else-if condition="cost_limit_reached" value="1" />
+   <else-if condition="rank_limit_reached" value="1" />
+   <else value="0" />
+  </probability>
+  ...
+  <probability id="skip_to_next_page">
+   <if condition="end_of_page" negation="true" value="0" />
+   <else value="*" />
+  </probability>
+--- Example ends ---
+  
+Each transition has a certain probability that it will occur. A
+probability can either be a fixed number between 0 and 1, or it
+can be calculated at run-time (marked with *). The descriptor allows 
+writing simple if-elseif-else statements that utilise conditions 
+defined in the probability-conditions section.
+
+6.7 Probability conditions
+
+--- Example ---
+  <probability-condition id="document_is_relevant">
+   <callback name="default_current_document_is_relevant">
+    <argument name="min_relevance" value="1" />
+   </callback>
+  </probability-condition>
+--- Example ends ---
+  
+A probability condition defines a context-dependent function that
+returns either true or false. Each condition is associated with
+a callback function written in python. See the callbacks section
+of this README for more information on callbacks.
+
+The following condition callbacks have been pre-defined:
+ default_current_document_is_relevant( min_relevance )
+ default_current_document_is_last_on_page()
+ default_current_document_is_ranked_last()
+ default_current_query_is_last()
+ default_gain_exceeded( gain_limit )
+ default_cost_exceeded( cost_limit )
+ default_total_rank_exceeded( rank_limit )
+ default_query_rank_exceeded( rank_limit )
+
+7. CONFIGURATION, IRSIM CONFIG FORMAT
+
+The configuration file is an XML file that contains the following
+sections:
+
+ Files
+ Sessions
+ Defaults
+ Options
+
+7.1 Files
+
+--- Example ---
+ <files>
+  <input-directory>indir</input-directory>
+  <relevance-file format="trec2" id="rel1">histrelcorp-3_and_34.txt</relevance-file>
+  <simulation>2012-10-30-qsdl_new_style_transitions.xml</simulation>
+  <condition-callbacks>conditionsTest.py</condition-callbacks>
+  <cost-callbacks>costsTest.py</cost-callbacks>
+  <decay-callbacks>decaysTest.py</decay-callbacks>
+  <derived-gains-callbacks>derivedGainsTest.py</derived-gains-callbacks>
+  <gain-callbacks>gainsTest.py</gain-callbacks>
+  <trigger-callbacks>triggersTest.py</trigger-callbacks>
+ </files>
+--- Example ends --- 
+ 
+The files section contains information on where to find the input
+files for relevance data, simulator descriptor and callbacks.
+
+At least one relevance file and a simulation file are required. Other
+files can be omitted. 
+
+Valid relevance file formats are:
+ trec, for TREC files with 4 columns
+ trec2, for TREC files with 3 columns
+
+An input directory can be defined. The simulator will search for
+all the files in the defined directory. If it is not defined,
+the current directory will be used instead.
+
+7.2 Sessions
+
+--- Example ---
+  <session id="t4s1">
+   <use-queries query-file="topic4_query1" result-file="topic4_query1_results" query-file-format="lemur" result-file-format="trec" />
+   <use-queries query-file="topic4_query2" result-file="topic4_query2_results" />
+   <use-queries query-file="topic4_query3" result-file="topic4_query3_results" />
+   <output>
+    <file>topic4_out.csv</file>
+   </output>
+  </session>
+--- Example ends ---
+
+Each session defines a set of query files and result files to
+map together. You can also define how to output the results per
+session, if the values defined in the defaults section aren't 
+sufficient. An output file name is required.
+
+Valid query file formats are:
+ lemur, for lemur/indri parameter files
+
+Valid result file formats are:
+ trec, for 5 column TREC result files
+
+7.3 Defaults
+
+The defaults section defines default values for all sessions.
+Every item described here can also be moved inside a session
+element.
+
+7.3.1 Gains
+
+--- Example ---
+  <gains>
+   <gain relevance-level="0" gain="0" />
+   <gain relevance-level="1" gain="1" />
+   <gain relevance-level="2" gain="10" />
+   <gain relevance-level="3" gain="100" />
+  </gains>
+--- Example ends ---
+  
+Gains and their mappings to relevance levels are defined here.
+Each relevance level found in the relevance files must be
+mapped to a gain value.
+
+7.3.2 Sessions
+
+--- Example ---
+  <sessions>
+   <query-file-format>lemur</query-file-format>
+   <result-file-format>trec</result-file-format>
+   <relevance-file-format>trec2</relevance-file-format>
+  </sessions>
+--- Example ends ---
+
+The sessions element in the defaults section contains default
+file format definitions for all sessions.
+
+7.3.3 Output
+
+--- Example ---
+  <output>
+   <format>csv</format>
+   <gain-types>
+    <type id="dcg" function="calc_dcg">
+     <argument name="base" value="2" />
+    </type>
+   </gain-types>
+   <figures>
+    ...
+   </figures>
+  </output>
+--- Example ends ---
+
+In the output part you can define defaults for the output
+format as well as the derived gain types. Each derived
+gain type needs a callback function. A DCG example is provided.
+
+7.3.3.1 Custom Figures
+
+--- Example ---
+  <output>
+   ...
+   <figures>
+    <custom-figure id="cust1">
+     <xaxis>
+      <range>rank</range>
+      <increments>1</increments>
+     </xaxis>
+     <yaxis label="Gain">
+      <values label="avg dcg" function="average_derived_gain">
+       <argument name="gainId" value="dcg" />
+      </values>
+      <values label="avg cg" function="average_cumulated_gain" />
+     </yaxis>
+    </custom-figure>
+   </figures>
+   ...
+  </output>
+--- Example ends ---
+
+Custom figures can be defined in the output section. Each custom figure
+results in a PNG file with the following name pattern: <figure id>-<session id>.png.
+
+Each custom figure must define what to use as the axes. For x-axis, the
+possible sources are:
+
+ rank
+ cost
+
+You must also define what to use for increments. Good starting points are 1 for rank
+and 50 for cost. Lower increments result in more fine-grained plots.
+
+For y-axis, several different values elements can be defined. Each values element
+results in a plotted graph representing the values the function returns. Possible
+functions and their arguments are:
+
+ average_cumulated_gain( proportion = 25, bottom = False )
+ average_cumulated_gain_SD( factor = 1.0 )
+ average_derived_gain( gainId, proportion = 25, bottom = False )
+ average_derived_gain_SD( gainId, factor = 1.0 )
+ average_cost( proportion = 25, bottom = False )
+ average_cost_SD( factor = 1.0 )
+
+7.3.4 Other default values
+
+--- Example ---
+  <page-size>5</page-size>
+  <iterations>500</iterations>
+--- Example ends ---
+  
+The page-size value is the default result page size.
+
+The iterations value is the number of times the simulator
+runs each session.
+
+7.4 Options
+
+--- Example ---
+ <options>
+  <ignore-missing-relevance-data>true</ignore-missing-relevance-data>
+  <missing-relevance-level>0</missing-relevance-level>
+  <show-seed>true</show-seed>
+  <show-input-files>true</show-input-files>
+  <random-seed>869903750</random-seed>
+  <verbose-output>false</verbose-output>
+ </options>
+--- Example ends ---
+ 
+The following options can be defined:
+
+ ignore-missing-relevance-data (true/false)
+   Ignore missing relevance data for a document, or raise error?
+
+ missing-relevance-level (integer)
+   What relevance level to assume for missing documents
+
+ show-seed (true/false)
+   Output the random seed, so that it can be used again later
+
+ random-seed (integer)
+   Random seed to use for the simulation. Using the same random
+   seed produces the same results each time.
+
+ show-input-files (true/false)
+   Output the input file names
+
+ verbose-output (true/false)
+   Print highly verbose data about the simulation to stdout
+
+8. CALLBACKS
+
+Callbacks are python functions that calculate values according
+to the current and/or past simulation states. The files 
+section in the configuration file defines callback function
+file locations for each different callback type. The callback
+types are:
+
+ Condition callbacks, for calculating conditions
+ Cost callbacks, for calculating costs
+ Decay callbacks, for calculating probability decay
+ Derived gains callbacks, for calculating derived gains
+ Gain callbacks, for calculating the main gain
+ Trigger callbacks, for triggering internal simulator events
+
+All callback functions receive the current simulation run as
+an argument. Each callback function may also have other
+arguments. See the pre-defined callback functions for 
+examples of that. 
+
+9. MORE EXAMPLES
+
+LICENSE
