@@ -23,16 +23,18 @@ except ValidationError as e:
     sys.stderr.write(e.details() + '\n')
     sys.exit(1)
 
-for runs in simulationRunner.run_sessions( confDesc ):
-    confDesc.get_output_writer( runs, confDesc.get_random_seed(), configName )()
+for runId in confDesc.get_run_id_iterator():
+    for simulationIterations in simulationRunner.run_sessions( confDesc, runId ):
+        confDesc.get_output_writer( simulationIterations, confDesc.get_random_seed(), configName, runId )()
 
-    costIncrement = 10
-    sessid = str(runs[0].get_session_id())
-    
-    figures.plotGainsAtRank( runs )
-    figures.plotGainsAtCost(runs, costIncrement)
-    figures.plotDerivedGains(runs, confDesc.get_derived_gains_dict( sessid ).iterkeys(), costIncrement)
-    figures.plotCostsAtRank(runs)
-    
-    figures.plotCustomFigures(runs, confDesc.get_custom_figures_dict(sessid))
-    
+        costIncrement = 10
+        sessid = str(simulationIterations[0].get_session_id())
+        
+        #FIXME: figures module should derive filenames from runId
+        figures.plotGainsAtRank( simulationIterations )
+        figures.plotGainsAtCost(simulationIterations, costIncrement)
+        figures.plotDerivedGains(simulationIterations, confDesc.get_derived_gains_dict( sessid ).iterkeys(), costIncrement)
+        figures.plotCostsAtRank(simulationIterations)
+        
+        figures.plotCustomFigures(simulationIterations, confDesc.get_custom_figures_dict(sessid))
+        

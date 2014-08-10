@@ -99,7 +99,7 @@ class Simulation(Observable):
     def __repr__(self, *args, **kwargs):
         return repr( self.history )
 
-    def __init__(self, simDesc, config, reader, iteration):
+    def __init__(self, simDesc, config, reader, iteration, runId):
         
         Observable.__init__(self)
         
@@ -107,6 +107,7 @@ class Simulation(Observable):
         self.config = config
         self.reader = reader
         self.iteration = iteration
+        self.runId = runId
         self.history = []
         self.seenDocuments = {}
         
@@ -242,7 +243,11 @@ class Simulation(Observable):
                     'Derived gain callback \'%s\' not found. Check callback mapping. Available callbacks: %s' % \
                     ( cbFunctionName, repr(callbackFunctions.keys())))
 
+    def get_variable_probability_value(self, variableName):
+        return self.config.get_variable_probability_value(self.runId, variableName)
+
     def get_transition_by_probability( self, valueToCheck, decay, H1, transition ):
+        # FIXME: type can currently be either from qsdl xsd or config xsd
         if type( valueToCheck ) == qsdl.probability_value_direct:
             decayedValue = valueToCheck + decay
             
@@ -257,7 +262,8 @@ class Simulation(Observable):
                 H1.cumulatingProbability += decayedValue
                 return None
         elif type( valueToCheck ) == qsdl.probability_value_variable:
-            pass
+            actualValue = self.get_variable_probability_value(valueToCheck)
+            return self.get_transition_by_probability(actualValue, decay, H1, transition)
         else:
             self.v_print( lambda : '   Probability %s is calculated. Setting action as fallback.' % (valueToCheck) )
             H1.calculateTarget = transition

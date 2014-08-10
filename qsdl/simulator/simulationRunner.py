@@ -16,11 +16,13 @@ from qsdl.simulator.events import ProbabilityCalculated
 from qsdl.simulator.observers import TransitionConsiderationRecorder
 from qsdl.simulator.observers import ProbabilityRecorder
 
-def register_observers( simulation ):
+
+def register_observers(simulation):
     simulation.registerObserver( TransitionConsiderBegin, TransitionConsiderationRecorder() )
     simulation.registerObserver( ProbabilityCalculated, ProbabilityRecorder() )
 
-def run_sessions( config ):
+
+def run_sessions(config, runId):
     # initiate random seed for the simulation
     seed = config.get_random_seed()
     random.seed( seed )
@@ -30,15 +32,15 @@ def run_sessions( config ):
     v_print = config.get_verbose_writer()
     sessions = []
     for sessionId in sessionIdIterator:
-        runs = []
+        simulationIterations = []
         for iteration in range( config.get_iterations( sessionId ) ):
             reader = config.get_reader( sessionId )
-            simul = Simulation(simDesc, config, reader, iteration)
+            simulationIteration = Simulation(simDesc, config, reader, iteration, runId)
         
-            register_observers(simul)
+            register_observers(simulationIteration)
         
             while True:
-                v_print( lambda : 'Gain: %g - Cost: %g' % (simul.currentState.cumulatedGain, simul.currentState.cumulatedCost) )
+                v_print( lambda : 'Gain: %g - Cost: %g' % (simulationIteration.currentState.cumulatedGain, simulationIteration.currentState.cumulatedCost) )
                 
                 '''
                 uinput = raw_input('Press return to advance, enter Q to quit.')
@@ -47,7 +49,7 @@ def run_sessions( config ):
                 '''
             
                 try:
-                    notFinal = simul.advance()
+                    notFinal = simulationIteration.advance()
                 except IrsimError as ie:
                     print >> sys.stderr, 'ERROR:', ie.value
                     sys.exit()
@@ -56,9 +58,9 @@ def run_sessions( config ):
                     v_print( lambda : 'Final action reached!' )
                     break 
             
-                v_print( lambda : 'Ran action: %s' % simul.history[ len(simul.history) - 1 ].nextTransition.target )
+                v_print( lambda : 'Ran action: %s' % simulationIteration.history[ len(simulationIteration.history) - 1 ].nextTransition.target )
         
-            runs.append( simul )
-        sessions.append( runs )
+            simulationIterations.append( simulationIteration )
+        sessions.append( simulationIterations )
                 
     return sessions
