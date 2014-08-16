@@ -163,8 +163,8 @@
    <else value="0" />
   </probability>
   <probability id="judge_as_relevant">
-   <if condition="document_is_relevant" value="0.7" />
-   <else value="0.1" />
+   <if condition="document_is_relevant" value="$judgeCorrectlyAsRelevant" />
+   <else value="$judgeIncorrectlyAsRelevant" />
   </probability>
   <probability id="give_up">
    <value>0</value>

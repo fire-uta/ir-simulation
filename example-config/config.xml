@@ -97,5 +97,12 @@
   <!-- <random-seed>869903750</random-seed>  -->
   <verbose-output>false</verbose-output>
  </options>
+
+ <runs>
+  <run id="run1">
+    <probability name="$judgeCorrectlyAsRelevant">0.7</probability>
+    <probability name="$judgeIncorrectlyAsRelevant">0.1</probability>
+  </run>
+ </runs>
  
 </qsconf>
