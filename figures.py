@@ -10,6 +10,29 @@ import matplotlib.pyplot as pyplot
 import qsdl.parser.parsedQSDL as parsedQSDL
 from matplotlib.figure import SubplotParams
 
+
+class FiguresConfig:
+    pass
+
+FiguresConfig.runId = None
+
+
+def set_run_id(runId):
+    FiguresConfig.runId = runId
+
+
+def get_filename_prefix():
+    if FiguresConfig.runId is None:
+        raise RuntimeError("Run id not set")
+    return FiguresConfig.runId + '-'
+
+
+def get_filename(type, runs, format='png'):
+    return get_filename_prefix() + type + '-' + get_session_id(runs) + '.' + format
+
+def get_session_id( runs ):
+    return str(runs[0].get_session_id())
+
 def pack_callback_arguments( callback ):
     return parsedQSDL.pack_callback_arguments( callback )
 
@@ -33,7 +56,7 @@ def plotGainsAtRank( runs ):
         ('avg -1SD', stats.get_avg_cumulated_gain_plusSD_at_total_rank_range( runs, -1 ) )
                    ]
     defaultPlot( 'rank', 'cg', stats.get_max_rank_range( runs ), yValueLists,
-                 stats.get_amount_of_runs_at_total_rank_range(runs), 'gainAtRank-' + sessid + '.png' )
+                 stats.get_amount_of_runs_at_total_rank_range(runs), get_filename('gainAtRank', runs))
 
 def plotGainsAtCost( runs, costIncrement ):
     sessid = str(runs[0].get_session_id())
@@ -45,7 +68,7 @@ def plotGainsAtCost( runs, costIncrement ):
         ('avg -1SD', stats.get_avg_cumulated_gain_plusSD_at_cost_range( runs, costIncrement, -1 ) )
                    ]
     defaultPlot( 'cost', 'cg', stats.get_max_cost_range( runs, costIncrement ), yValueLists,
-                 stats.get_amount_of_runs_at_cost_range(runs, costIncrement), 'gainAtCost-' + sessid + '.png' )
+                 stats.get_amount_of_runs_at_cost_range(runs, costIncrement), get_filename('gainAtCost', runs))
     
 def plotDerivedGains( runs, gainIds, costIncrement ):
     sessid = str(runs[0].get_session_id())
@@ -60,7 +83,7 @@ def plotDerivedGains( runs, gainIds, costIncrement ):
             ]
     
         defaultPlot( 'rank', gainId, stats.get_max_rank_range( runs ), yValueLists,
-                 stats.get_amount_of_runs_at_total_rank_range(runs), gainId + 'AtRank-' + sessid + '.png' )
+                 stats.get_amount_of_runs_at_total_rank_range(runs), get_filename(gainId + 'AtRank', runs))
         
         yValueLists = [
             ('avg', stats.get_average_derived_gains_at_cost_range( gainId, runs, costIncrement ) ),
@@ -84,7 +107,7 @@ def plotCostsAtRank( runs ):
         ('avg -1SD', stats.get_avg_cumulated_cost_plusSD_at_total_rank_range( runs, factor = -1 ) )
                    ]
     defaultPlot( 'rank', 'cg', stats.get_max_rank_range( runs ), yValueLists,
-                 stats.get_amount_of_runs_at_total_rank_range(runs), 'costAtRank-' + sessid + '.png' )
+                 stats.get_amount_of_runs_at_total_rank_range(runs), get_filename('costAtRank', runs))
 
 def plotCustomFigures( runs, customFiguresDict ):
     sessid = str(runs[0].get_session_id())
@@ -103,5 +126,5 @@ def plotCustomFigures( runs, customFiguresDict ):
             callback = callbacks[ values.function ][ range_ ]
             yValueLists.append( (values.label, callback( runs = runs, increment = increment, **pack_callback_arguments(values )) ) )
         
-        defaultPlot( range_, yAxis.label, rangeRange, yValueLists, amtRuns, figure.id + '-' + sessid + '.png' )
+        defaultPlot( range_, yAxis.label, rangeRange, yValueLists, amtRuns, get_filename(figure.id, runs))
         

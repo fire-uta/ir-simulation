@@ -24,6 +24,7 @@ except ValidationError as e:
     sys.exit(1)
 
 for runId in confDesc.get_run_id_iterator():
+    figures.set_run_id(runId)
     for simulationIterations in simulationRunner.run_sessions( confDesc, runId ):
         confDesc.get_output_writer( simulationIterations, confDesc.get_random_seed(), configName, runId )()
 
