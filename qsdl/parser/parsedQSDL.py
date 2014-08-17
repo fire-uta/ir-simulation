@@ -33,21 +33,21 @@ class SimDescriptor(object):
 
         self.doc = pyxbQSDLDoc
         self.config = config
-        
-        self.actions = dict( [ [ action.id, action ] for action in pyxbQSDLDoc.actions.action ] ) 
+
+        self.actions = dict( [ [ action.id, action ] for action in pyxbQSDLDoc.actions.action ] )
         self.probabilities = dict( [ [ probability.id, probability ] for probability \
-                                    in pyxbQSDLDoc.probabilities.probability ] ) 
+                                    in pyxbQSDLDoc.probabilities.probability ] )
         self.conditions = dict( [ [ condition.id, condition ] for condition \
-                                    in pyxbQSDLDoc.probability_conditions.probability_condition ] ) 
+                                    in pyxbQSDLDoc.probability_conditions.probability_condition ] )
         self.costs = dict( [ [ cost.id, cost ] for cost in pyxbQSDLDoc.costs.cost ] )
         self.gains = dict( [ [ gain.id, gain ] for gain in pyxbQSDLDoc.gains.gain ] )
         self.decays = dict( [ [ decay.id, decay ] for decay in pyxbQSDLDoc.decays.decay ] )
         self.transitionSources = dict( [ [ source.source, source ] for source \
                                       in pyxbQSDLDoc.transitions.from_ ] )
-        
+
         self.initialActionId = pyxbQSDLDoc.actions.initial
         self.initialAction = self.actions[ self.initialActionId ]
-        
+
         for source in self.transitionSources.itervalues():
             source.negDecayDivider = sum( [ 1.0 if to.decay_effect == "-" else 0.0 for to in source.to] )
             source.posDecayDivider = sum( [ 1.0 if to.decay_effect == "+" else 0.0 for to in source.to] )
@@ -59,9 +59,9 @@ class SimDescriptor(object):
             for target in source.to:
                 # Create a simple list for performance reasons
                 source.targets.append( target )
-                
+
                 # Bind source and target since we are creating lambdas inside a loop
-                def setDecayFunction( trgt_, src_ ):    
+                def setDecayFunction( trgt_, src_ ):
                     # Pre-calc decay function
                     decayF = lambda decayFunc, sim : 0.0
                     if src_.decayDefinition != None:
@@ -71,10 +71,10 @@ class SimDescriptor(object):
                         elif trgt_.decay_effect == '+':
                             decayF = lambda decayFunc, sim : decayFunc( sim, **callbackArgs )/src_.posDecayDivider
                     trgt_.decayFunction = decayF
-                
+
                 setDecayFunction( target, source )
-            
-        # Pack callback args on init for performance reasons    
+
+        # Pack callback args on init for performance reasons
         for condition in self.conditions.itervalues():
             condition.callbackArgs = pack_callback_arguments( condition.callback )
         for gain in self.gains.itervalues():
@@ -89,7 +89,7 @@ class SimDescriptor(object):
             cbArgs = ifStatement.conditionRef.callbackArgs
             ifStatement.conditionCallbackLambda = \
                 lambda sim : ifStatement.conditionCallback( sim, neg, **cbArgs )
-                                        
+
         # Generate a conditions list for probabilities
         for probability in self.probabilities.itervalues():
             probability.conditions = []
@@ -104,13 +104,13 @@ class SimDescriptor(object):
                     elseif.conditionRef = self.get_condition_by_id( elseif.condition )
                     elseif.conditionCallback = config.get_condition_callbacks()[ elseif.conditionRef.callback.name ]
                     createCallbackLambda( elseif )
-        
+
     def get_action_by_id(self, id_):
         return self.actions[ id_ ]
-    
+
     def get_condition_by_id(self, id_):
         return self.conditions[ id_ ]
-    
+
     def get_transition_source_for_action_id(self, id_ ):
         try:
             return self.transitionSources[ id_ ]
@@ -119,19 +119,19 @@ class SimDescriptor(object):
 
     def get_probability_for_probability_id(self, id_):
         return self.probabilities[ id_ ]
-    
+
     def get_decay_by_id(self, id_):
         try:
             return self.decays[ id_ ]
         except KeyError:
             raise ConfigurationMissingError( 'Decay definition for id \'%s\' not found. Check configuration. Available definitions: %s' % (id_, repr(self.decays.keys())) )
-    
+
     def get_cost_callback_by_id(self, id_):
         try:
             return self.costs[ id_ ]
         except KeyError:
             raise ConfigurationMissingError( 'Cost definition for id \'%s\' not found. Check configuration. Available definitions: %s' % (id_, repr(self.costs.keys())) )
-    
+
     def get_gain_callback_by_id(self, id_):
         try:
             return self.gains[ id_ ]
@@ -142,7 +142,7 @@ class SimDescriptor(object):
         try:
             return self.config.get_decays()[ name ]
         except KeyError:
-            raise CallbackError( 
+            raise CallbackError(
                 'Decay callback \'%s\' not found. Check callback mapping. Available callbacks: %s' \
                 % ( name, repr(self.config.get_decays().keys())))
-            
+
