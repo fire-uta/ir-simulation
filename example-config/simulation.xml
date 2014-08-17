@@ -21,7 +21,7 @@
    <trigger type="nextDocument" />
    <!-- <trigger type="dummy" />  -->
   </action>
-  
+
   <!-- Read a whole document to judge its relevance -->
   <action id="read_document" cost="read_document">
    <trigger type="flagAsSeen" />
@@ -29,24 +29,24 @@
 
   <!-- Skip to the next page of query results -->
   <action id="turn_page" cost="turn_page" />
-  
+
   <!-- Judge document as relevant -->
   <action id="judge_as_relevant" gain="current_document" />
-   
+
    <!-- End of simulation. (It is possible to have several ends) -->
   <action id="give_up" final="true" />
   <action id="natural_end" final="true" />
   <action id="stop_at_max_rank" final="true" />
-  
+
  </actions>
- 
+
  <costs>
   <cost id="current_query">
    <callback name="get_default_current_query_cost">
     <argument name="key_cost" value="0.28" />
    </callback>
   </cost>
-  <!-- 
+  <!--
   <cost id="dummy">
    <callback name="dummy" />
   </cost>
@@ -61,23 +61,23 @@
    <value>2</value>
   </cost>
  </costs>
- 
+
  <gains>
   <gain id="current_document">
    <callback name="get_current_document_gain" />
   </gain>
-  <!-- 
+  <!--
   <gain id="dummy">
    <callback name="dummy" />
   </gain>
    -->
-  <!-- 
+  <!--
   <gain id="current_document">
    <callback name="dummy" />
   </gain>
    -->
  </gains>
- 
+
  <decays>
   <decay id="frustration">
    <callback name="calculate_frustration">
@@ -87,7 +87,7 @@
   </decay>
   <!-- <decay id="dummy"><callback name="dummy" /></decay>  -->
  </decays>
- 
+
  <!-- All possible transitions between actions -->
  <transitions>
   <from source="query_first">
@@ -126,7 +126,7 @@
    <to target="scan_one_summary" probability="always" />
   </from>
  </transitions>
- 
+
  <!-- All probabilities are declared here -->
  <probabilities>
   <probability id="always">
@@ -143,10 +143,10 @@
   <probability id="skip_to_next">
    <if condition="end_of_page" value="0" />
    <!-- <else-if condition="no_more_documents" value="0" /> -->
-   <!-- Calculated at run time as 1 - sum( P(t_i) ) where P(t_i) are the 
+   <!-- Calculated at run time as 1 - sum( P(t_i) ) where P(t_i) are the
    probabilities of other possible transitions at this point. Run time
    error if cannot be calculated. -->
-   <else value="*" /> 
+   <else value="*" />
   </probability>
   <probability id="skip_to_next_page">
    <if condition="end_of_page" negation="true" value="0" />
@@ -176,7 +176,7 @@
    <else value="0" />
   </probability>
  </probabilities>
-  
+
  <!-- Run-time conditions for calculating probabilities -->
  <probability-conditions>
   <probability-condition id="document_is_relevant">
@@ -210,9 +210,9 @@
   </probability-condition>
   <probability-condition id="change_strategy">
    <callback name="default_query_rank_exceeded">
-    <argument name="rank_limit" value="3" />
+    <argument name="rank_limit" value="$changeStrategyAtQueryRank" />
    </callback>
   </probability-condition>
  </probability-conditions>
-   
+
 </qsdl>
