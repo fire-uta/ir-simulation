@@ -4,9 +4,21 @@ Created on 26.9.2012
 
 @author: Teemu Pääkkönen
 '''
+import qsdl.parser.qsdl01 as qsdl
 from qsdl.simulator.errors.TransitionError import TransitionError
 from qsdl.simulator.errors.ConfigurationMissingError import ConfigurationMissingError
 from qsdl.simulator.errors.CallbackError import CallbackError
+
+
+class RuntimeConfig:
+    pass
+
+RuntimeConfig.callbackArgumentVariables = None
+
+
+def set_variable_callback_arguments( cbArgVars ):
+    RuntimeConfig.callbackArgumentVariables = cbArgVars
+
 
 def pack_callback_arguments( callback ):
     '''
@@ -15,8 +27,18 @@ def pack_callback_arguments( callback ):
     '''
     argDict = {}
     for arg in callback.argument:
-        argDict[ arg.name ] = arg.value_
+        if type(arg.value_) == qsdl.callback_argument_value_non_variable:
+            argDict[ arg.name ] = arg.value_
+        elif type(arg.value_) == qsdl.probability_value_variable:
+            argDict[arg.name] = get_callback_argument_variable_value(arg.value_)
     return argDict
+
+
+def get_callback_argument_variable_value( variableName ):
+    if RuntimeConfig.callbackArgumentVariables is None:
+        raise CallbackError('Callback argument variables not set in config. Check your configuration.')
+    return RuntimeConfig.callbackArgumentVariables[variableName]
+
 
 class SimDescriptor(object):
     '''

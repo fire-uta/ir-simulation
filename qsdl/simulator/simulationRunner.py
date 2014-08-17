@@ -9,6 +9,7 @@ import sys
 import random
 from qsdl.simulator.errors.IrsimError import IrsimError
 import qsdl.parser.qsdl01 as qsdl
+import qsdl.parser.parsedQSDL as parsedQSDL
 from qsdl.parser.parsedQSDL import SimDescriptor
 from qsdl.simulator.simulation import Simulation
 from qsdl.simulator.events import TransitionConsiderBegin
@@ -27,6 +28,7 @@ def run_sessions(config, runId):
     seed = config.get_random_seed()
     random.seed( seed )
 
+    parsedQSDL.set_variable_callback_arguments(config.get_variable_callback_arguments(runId))
     simDesc = SimDescriptor( qsdl.CreateFromDocument( config.get_simulation_file().read() ), config )
     sessionIdIterator = config.get_session_id_iterator()
     v_print = config.get_verbose_writer()
@@ -36,31 +38,31 @@ def run_sessions(config, runId):
         for iteration in range( config.get_iterations( sessionId ) ):
             reader = config.get_reader( sessionId )
             simulationIteration = Simulation(simDesc, config, reader, iteration, runId)
-        
+
             register_observers(simulationIteration)
-        
+
             while True:
                 v_print( lambda : 'Gain: %g - Cost: %g' % (simulationIteration.currentState.cumulatedGain, simulationIteration.currentState.cumulatedCost) )
-                
+
                 '''
                 uinput = raw_input('Press return to advance, enter Q to quit.')
                 if uinput.lower() == 'q':
                     break
                 '''
-            
+
                 try:
                     notFinal = simulationIteration.advance()
                 except IrsimError as ie:
                     print >> sys.stderr, 'ERROR:', ie.value
                     sys.exit()
-                
+
                 if not notFinal:
                     v_print( lambda : 'Final action reached!' )
-                    break 
-            
+                    break
+
                 v_print( lambda : 'Ran action: %s' % simulationIteration.history[ len(simulationIteration.history) - 1 ].nextTransition.target )
-        
+
             simulationIterations.append( simulationIteration )
         sessions.append( simulationIterations )
-                
+
     return sessions
