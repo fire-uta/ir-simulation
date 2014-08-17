@@ -43,6 +43,13 @@
   </xs:restriction>
  </xs:simpleType>
 
+ <!-- TODO: move to external file, since this is used in both config and qsdl -->
+ <xs:simpleType name="callback-argument-value-non-variable">
+  <xs:restriction base="xs:string">
+   <xs:pattern value="[^\$].*" />
+  </xs:restriction>
+ </xs:simpleType>
+
  <xs:complexType name="runs">
   <xs:sequence>
    <xs:element name="run" minOccurs="1" maxOccurs="unbounded" form="qualified">
@@ -52,6 +59,15 @@
        <xs:complexType>
         <xs:simpleContent>
          <xs:extension base="config:probability-value-direct">
+          <xs:attribute name="name" type="config:probability-value-variable" use="required" />
+         </xs:extension>
+        </xs:simpleContent>
+       </xs:complexType>
+      </xs:element>
+      <xs:element name="callback-argument" minOccurs="0" maxOccurs="unbounded" form="qualified">
+       <xs:complexType>
+        <xs:simpleContent>
+         <xs:extension base="config:callback-argument-value-non-variable">
           <xs:attribute name="name" type="config:probability-value-variable" use="required" />
          </xs:extension>
         </xs:simpleContent>

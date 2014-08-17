@@ -145,13 +145,24 @@
    <xs:element name="argument" minOccurs="0" maxOccurs="unbounded" form="qualified">
     <xs:complexType>
      <xs:attribute name="name" use="required" type="xs:string" />
-     <xs:attribute name="value" use="required" type="xs:string" />
+     <xs:attribute name="value" use="required" type="qsdl:callback-argument-value" />
     </xs:complexType>
    </xs:element>
   </xs:sequence>
   <xs:attribute name="name" use="required" type="xs:string" />
  </xs:complexType>
  
+ <xs:simpleType name="callback-argument-value">
+  <xs:union memberTypes="qsdl:callback-argument-value-non-variable qsdl:probability-value-variable" />
+ </xs:simpleType>
+
+ <!-- TODO: move to external file, since this is used in both config and qsdl -->
+ <xs:simpleType name="callback-argument-value-non-variable">
+  <xs:restriction base="xs:string">
+   <xs:pattern value="[^\$].*" />
+  </xs:restriction>
+ </xs:simpleType>
+
  <!-- Costs element type -->
  <xs:complexType name="costs">
   <xs:sequence>
