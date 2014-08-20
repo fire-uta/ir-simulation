@@ -8,7 +8,7 @@ README v. 2012.12.06
 
 1. INTRODUCTION
 
-IRSIM is a command line program that simulates an end user using 
+IRSIM is a command line program that simulates an end user using
 a search engine to retrieve information about one or more topics,
 using one or several different strategies. Cumulated gain and cost is
 calculated for each simulation run.
@@ -35,7 +35,7 @@ cumulated gain, and statistics. The results can be viewed in either
 CSV or Python format. Various graphs can also be plotted and output
 into PNG files.
 
-3. CLI OPTIONS
+3. COMMAND LINE OPTIONS
 
 There is one command line argument - the configuration file name.
 If no argument is supplied, the default name, `config.xml`,
@@ -96,7 +96,7 @@ sections:
 An action describes the user's decision to do something regarding
 the current set of queries and results. An action corresponds to
 a state in the simulator state machine model. Each action must at
-least have an ID. 
+least have an ID.
 
 One of the actions must be labeled as the initial
 action, and one or more of the actions must be labeled as final
@@ -122,14 +122,14 @@ Currently, the following triggers have been pre-defined:
     <argument name="key_cost" value="0.28" />
    </callback>
   </cost>
-  
+
   <cost id="scan_one_summary">
    <value>19</value>
   </cost>
 --- Example ends ---
-  
+
 A cost is an arbitrary measure. It can, for example, be defined as
-the amount of time taken to complete an action. A cost can be 
+the amount of time taken to complete an action. A cost can be
 associated with any action. The simulator calculates the cost
 after every action, and keeps track of cumulated cost over the
 whole simulation run.
@@ -152,7 +152,7 @@ The following cost callbacks have been pre-defined:
 A gain measures how much the user benefits from an action. A gain
 can be associated with any action. The simulator calculates the gain
 after each action, keeping track of cumulated gain over the simulation
-run. 
+run.
 
 In addition, derived gains can be defined in the configuration
 file. Calculation of DCG is provided as an example.
@@ -175,10 +175,10 @@ The following gain callbacks have been pre-defined:
    </callback>
   </decay>
 --- Example ends ---
-  
+
 A decay modifies the probabilities of transitions by a fixed or
 calculated number. A decay is associated with an action, and it can
-affect all the transitions that originate from that action. Each 
+affect all the transitions that originate from that action. Each
 transition can be marked with a decay-effect modifier that is either
 '+' (positive), '-' (negative) or '=' (no effect). A positive effect
 means that the probability is increased by the amount defined by
@@ -221,11 +221,11 @@ action.
    <else value="*" />
   </probability>
 --- Example ends ---
-  
+
 Each transition has a certain probability that it will occur. A
 probability can either be a fixed number between 0 and 1, or it
-can be calculated at run-time (marked with *). The descriptor allows 
-writing simple if-elseif-else statements that utilise conditions 
+can be calculated at run-time (marked with *). The descriptor allows
+writing simple if-elseif-else statements that utilise conditions
 defined in the probability-conditions section.
 
 6.7 Probability conditions
@@ -237,7 +237,7 @@ defined in the probability-conditions section.
    </callback>
   </probability-condition>
 --- Example ends ---
-  
+
 A probability condition defines a context-dependent function that
 returns either true or false. Each condition is associated with
 a callback function written in python. See the callbacks section
@@ -277,13 +277,13 @@ sections:
   <gain-callbacks>gainsTest.py</gain-callbacks>
   <trigger-callbacks>triggersTest.py</trigger-callbacks>
  </files>
---- Example ends --- 
- 
+--- Example ends ---
+
 The files section contains information on where to find the input
 files for relevance data, simulator descriptor and callbacks.
 
 At least one relevance file and a simulation file are required. Other
-files can be omitted. 
+files can be omitted.
 
 Valid relevance file formats are:
  trec, for TREC files with 4 columns
@@ -308,7 +308,7 @@ the current directory will be used instead.
 
 Each session defines a set of query files and result files to
 map together. You can also define how to output the results per
-session, if the values defined in the defaults section aren't 
+session, if the values defined in the defaults section aren't
 sufficient. An output file name is required.
 
 Valid query file formats are:
@@ -333,7 +333,7 @@ element.
    <gain relevance-level="3" gain="100" />
   </gains>
 --- Example ends ---
-  
+
 Gains and their mappings to relevance levels are defined here.
 Each relevance level found in the relevance files must be
 mapped to a gain value.
@@ -423,7 +423,7 @@ functions and their arguments are:
   <page-size>5</page-size>
   <iterations>500</iterations>
 --- Example ends ---
-  
+
 The page-size value is the default result page size.
 
 The iterations value is the number of times the simulator
@@ -441,7 +441,7 @@ runs each session.
   <verbose-output>false</verbose-output>
  </options>
 --- Example ends ---
- 
+
 The following options can be defined:
 
  ignore-missing-relevance-data (true/false)
@@ -466,7 +466,7 @@ The following options can be defined:
 8. CALLBACKS
 
 Callbacks are python functions that calculate values according
-to the current and/or past simulation states. The files 
+to the current and/or past simulation states. The files
 section in the configuration file defines callback function
 file locations for each different callback type. The callback
 types are:
@@ -480,8 +480,8 @@ types are:
 
 All callback functions receive the current simulation run as
 an argument. Each callback function may also have other
-arguments. See the pre-defined callback functions for 
-examples of that. 
+arguments. See the pre-defined callback functions for
+examples of that.
 
 9. MORE EXAMPLES
 
