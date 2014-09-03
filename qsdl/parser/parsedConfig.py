@@ -77,7 +77,7 @@ class ConfigDescriptor(object):
 
     def get_variable_callback_arguments(self, runId):
         run = self.runs[runId]
-        return run.callback_arguments
+        return run.get('callback_arguments')
 
     def get_run_id_iterator(self):
         return self.runs.iterkeys()
