@@ -42,7 +42,7 @@ class ConfigDescriptor(object):
 
         def get_run_map():
             map_ = {}
-            if not hasattr(self.doc, 'runs'):
+            if not hasattr(self.doc, 'runs') or self.doc.runs is None:
                 map_['default'] = {}
                 return map_
             for run in self.doc.runs.run:
