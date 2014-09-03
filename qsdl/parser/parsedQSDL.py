@@ -39,6 +39,10 @@ def get_callback_argument_variable_value( variableName ):
         raise CallbackError('Callback argument variables not set in config. Check your configuration.')
     return RuntimeConfig.callbackArgumentVariables[variableName]
 
+def get_decays( pyxbQSDLDoc ):
+    if pyxbQSDLDoc.decays is None:
+        return []
+    return pyxbQSDLDoc.decays.decay
 
 class SimDescriptor(object):
     '''
@@ -63,7 +67,7 @@ class SimDescriptor(object):
                                     in pyxbQSDLDoc.probability_conditions.probability_condition ] )
         self.costs = dict( [ [ cost.id, cost ] for cost in pyxbQSDLDoc.costs.cost ] )
         self.gains = dict( [ [ gain.id, gain ] for gain in pyxbQSDLDoc.gains.gain ] )
-        self.decays = dict( [ [ decay.id, decay ] for decay in pyxbQSDLDoc.decays.decay ] )
+        self.decays = dict( [ [ decay.id, decay ] for decay in get_decays(pyxbQSDLDoc) ] )
         self.transitionSources = dict( [ [ source.source, source ] for source \
                                       in pyxbQSDLDoc.transitions.from_ ] )
 
