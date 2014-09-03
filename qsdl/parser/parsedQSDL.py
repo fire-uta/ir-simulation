@@ -114,7 +114,7 @@ class SimDescriptor(object):
             neg = ifStatement.negation
             cbArgs = ifStatement.conditionRef.callbackArgs
             ifStatement.conditionCallbackLambda = \
-                lambda sim : ifStatement.conditionCallback( sim, neg, **cbArgs )
+                lambda sim, neg=neg, cbArgs=cbArgs, ifStatement=ifStatement : ifStatement.conditionCallback( sim, neg, **cbArgs )
 
         # Generate a conditions list for probabilities
         for probability in self.probabilities.itervalues():
