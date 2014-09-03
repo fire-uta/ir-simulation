@@ -123,12 +123,12 @@ class SimDescriptor(object):
                 probability.conditions.append( probability.if_ )
                 probability.if_.conditionRef = self.get_condition_by_id( probability.if_.condition )
                 probability.if_.conditionCallback = \
-                    config.get_condition_callbacks()[ probability.if_.conditionRef.callback.name ]
+                    self.get_condition_callback_by_name(probability.if_.conditionRef.callback.name)
                 createCallbackLambda( probability.if_ )
                 for elseif in probability.else_if:
                     probability.conditions.append( elseif )
                     elseif.conditionRef = self.get_condition_by_id( elseif.condition )
-                    elseif.conditionCallback = config.get_condition_callbacks()[ elseif.conditionRef.callback.name ]
+                    elseif.conditionCallback = self.get_condition_callback_by_name(elseif.conditionRef.callback.name)
                     createCallbackLambda( elseif )
 
     def get_action_by_id(self, id_):
@@ -163,6 +163,15 @@ class SimDescriptor(object):
             return self.gains[ id_ ]
         except KeyError:
             raise ConfigurationMissingError( 'Gain definition for id \'%s\' not found. Check configuration. Available definitions: %s' % (id_, repr(self.gains.keys())) )
+
+    def get_condition_callback_by_name(self, id_):
+        try:
+            return self.config.get_condition_callbacks()[ id_ ]
+        except KeyError:
+            raise CallbackError(
+                'Condition callback \'%s\' not found. Check callback mapping. Available callbacks: %s' \
+                % ( id_, repr(self.config.get_condition_callbacks().keys())))
+
 
     def get_decay_function_by_name(self, name):
         try:
