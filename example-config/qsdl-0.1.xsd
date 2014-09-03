@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<xs:schema 
- targetNamespace="urn:X-fi-uta-sis-fire:qsdl" 
+<xs:schema
+ targetNamespace="urn:X-fi-uta-sis-fire:qsdl"
  xmlns:qsdl="urn:X-fi-uta-sis-fire:qsdl"
  xmlns:xs="http://www.w3.org/2001/XMLSchema" >
 
@@ -15,59 +15,59 @@
    <xs:element name="probability-conditions" type="qsdl:probability-conditions" form="qualified" minOccurs="0" />
   </xs:all>
  </xs:complexType>
-  
+
  <!-- Root element -->
  <xs:element name="qsdl" type="qsdl:qsdl">
-  
+
   <!-- KEYS: -->
-  
+
   <xs:key name="action-id">
    <xs:selector xpath="qsdl:actions/qsdl:action" />
    <xs:field xpath="@id" />
   </xs:key>
-  
+
   <xs:key name="cost-id">
    <xs:selector xpath="qsdl:costs/qsdl:cost" />
    <xs:field xpath="@id" />
   </xs:key>
-  
+
   <xs:key name="gain-id">
    <xs:selector xpath="qsdl:gains/qsdl:gain" />
    <xs:field xpath="@id" />
   </xs:key>
-  
+
   <xs:key name="decay-id">
    <xs:selector xpath="qsdl:decays/qsdl:decay" />
    <xs:field xpath="@id" />
   </xs:key>
-  
+
   <xs:key name="probability-id">
    <xs:selector xpath="qsdl:probabilities/qsdl:probability" />
    <xs:field xpath="@id" />
   </xs:key>
-  
+
   <xs:key name="condition-id">
    <xs:selector xpath="qsdl:probability-conditions/qsdl:probability-condition" />
    <xs:field xpath="@id" />
   </xs:key>
-  
+
   <!-- KEY REFERENCES: -->
-  
+
   <xs:keyref name="cost-reference" refer="qsdl:cost-id">
    <xs:selector xpath="qsdl:actions/qsdl:action" />
    <xs:field xpath="@cost" />
   </xs:keyref>
-  
+
   <xs:keyref name="gain-reference" refer="qsdl:gain-id">
    <xs:selector xpath="qsdl:actions/qsdl:action" />
    <xs:field xpath="@gain" />
   </xs:keyref>
-  
+
   <xs:keyref name="decay-reference" refer="qsdl:decay-id">
    <xs:selector xpath="qsdl:transitions/qsdl:from/qsdl:to" />
    <xs:field xpath="@decay" />
   </xs:keyref>
-  
+
   <xs:keyref name="source-action-reference" refer="qsdl:action-id">
    <xs:selector xpath="qsdl:transitions/qsdl:from" />
    <xs:field xpath="@source" />
@@ -80,7 +80,7 @@
    <xs:selector xpath="qsdl:transitions/qsdl:from/qsdl:to" />
    <xs:field xpath="@probability" />
   </xs:keyref>
-  
+
   <xs:keyref name="if-condition-reference" refer="qsdl:condition-id">
    <xs:selector xpath="qsdl:probabilities/qsdl:probability/qsdl:if" />
    <xs:field xpath="@condition" />
@@ -89,7 +89,7 @@
    <xs:selector xpath="qsdl:probabilities/qsdl:probability/qsdl:else-if" />
    <xs:field xpath="@condition" />
   </xs:keyref>
-  
+
  </xs:element>
 
  <!-- Actions element -->
@@ -121,7 +121,7 @@
   </xs:sequence>
   <xs:attribute name="initial" type="xs:string" use="required" />
  </xs:complexType>
- 
+
  <!-- Callback or value type (for gains and costs) -->
  <xs:complexType name="callback-or-value">
   <xs:choice>
@@ -130,7 +130,7 @@
   </xs:choice>
   <xs:attribute name="id" type="xs:string" use="required" />
  </xs:complexType>
- 
+
  <!-- Callback type (for probability conditions) -->
  <xs:complexType name="callback">
   <xs:sequence>
@@ -138,7 +138,7 @@
   </xs:sequence>
   <xs:attribute name="id" type="xs:string" use="required" />
  </xs:complexType>
- 
+
  <!-- Inner callback element type -->
  <xs:complexType name="callback-with-arguments">
   <xs:sequence>
@@ -151,7 +151,7 @@
   </xs:sequence>
   <xs:attribute name="name" use="required" type="xs:string" />
  </xs:complexType>
- 
+
  <xs:simpleType name="callback-argument-value">
   <xs:union memberTypes="qsdl:callback-argument-value-non-variable qsdl:probability-value-variable" />
  </xs:simpleType>
@@ -159,7 +159,7 @@
  <!-- TODO: move to external file, since this is used in both config and qsdl -->
  <xs:simpleType name="callback-argument-value-non-variable">
   <xs:restriction base="xs:string">
-   <xs:pattern value="[^\$].*" />
+   <xs:pattern value="[^$].*" />
   </xs:restriction>
  </xs:simpleType>
 
@@ -169,21 +169,21 @@
    <xs:element name="cost" minOccurs="1" maxOccurs="unbounded" form="qualified" type="qsdl:callback-or-value" />
   </xs:sequence>
  </xs:complexType>
- 
+
  <!-- Gains element type -->
  <xs:complexType name="gains">
   <xs:sequence>
    <xs:element name="gain" minOccurs="1" maxOccurs="unbounded" form="qualified" type="qsdl:callback-or-value" />
   </xs:sequence>
  </xs:complexType>
- 
+
  <!-- Decays element type -->
  <xs:complexType name="decays">
   <xs:sequence>
    <xs:element name="decay" minOccurs="1" maxOccurs="unbounded" form="qualified" type="qsdl:callback" />
   </xs:sequence>
  </xs:complexType>
- 
+
  <!-- Transitions element -->
  <xs:complexType name="trans">
   <xs:sequence>
@@ -204,7 +204,7 @@
    </xs:element>
   </xs:sequence>
  </xs:complexType>
- 
+
  <!-- Probabilities element -->
  <xs:complexType name="probabilities">
   <xs:sequence>
@@ -239,21 +239,21 @@
    </xs:element>
   </xs:sequence>
  </xs:complexType>
- 
+
  <!-- Probability conditions element type -->
  <xs:complexType name="probability-conditions">
   <xs:sequence>
    <xs:element name="probability-condition" minOccurs="1" maxOccurs="unbounded" form="qualified" type="qsdl:callback" />
   </xs:sequence>
  </xs:complexType>
-  
+
  <!-- Probability value can be a decimal number between 0 and 1;
  An asterisk (*) is a special value that means the probability will be
  calculated at run-time. -->
  <xs:simpleType name="probability-value" id="PROB_VAL">
   <xs:union memberTypes="qsdl:probability-value-direct qsdl:probability-value-calculated qsdl:probability-value-variable" />
  </xs:simpleType>
- 
+
  <!-- TODO: move to external file, since this is used in both config and qsdl -->
  <xs:simpleType name="probability-value-direct">
   <xs:restriction base="xs:decimal">
@@ -261,20 +261,20 @@
    <xs:maxInclusive value="1.0" />
   </xs:restriction>
  </xs:simpleType>
- 
+
  <xs:simpleType name="probability-value-calculated">
   <xs:restriction base="xs:string">
    <xs:enumeration value="*" />
   </xs:restriction>
  </xs:simpleType>
- 
+
  <!-- TODO: move to external file, since this is used in both config and qsdl -->
  <xs:simpleType name="probability-value-variable">
   <xs:restriction base="xs:string">
-   <xs:pattern value="\$[A-Za-z0-9]+" />
+   <xs:pattern value="$[A-Za-z0-9]+" />
   </xs:restriction>
  </xs:simpleType>
- 
+
  <xs:simpleType name="decay-effect">
   <xs:restriction base="xs:string">
    <xs:enumeration value="+" />
@@ -282,5 +282,5 @@
    <xs:enumeration value="=" />
   </xs:restriction>
  </xs:simpleType>
-     
+
 </xs:schema>

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<xs:schema 
- targetNamespace="urn:X-fi-uta-sis-fire:qs-config" 
+<xs:schema
+ targetNamespace="urn:X-fi-uta-sis-fire:qs-config"
  xmlns:config="urn:X-fi-uta-sis-fire:qs-config"
  xmlns:xs="http://www.w3.org/2001/XMLSchema" >
 
@@ -15,17 +15,17 @@
     <xs:element name="runs" type="config:runs" form="qualified" minOccurs="0" />
    </xs:all>
   </xs:complexType>
-  
+
   <xs:key name="session-id">
    <xs:selector xpath="config:sessions/config:session" />
    <xs:field xpath="@id" />
   </xs:key>
-  
+
   <xs:unique name="gain-relevance-level">
    <xs:selector xpath="config:defaults/config:gains/config:gain" />
    <xs:field xpath="@relevance-level" />
   </xs:unique>
-     
+
  </xs:element>
 
  <!-- TODO: move to external file, since this is used in both config and qsdl -->
@@ -39,14 +39,14 @@
  <!-- TODO: move to external file, since this is used in both config and qsdl -->
  <xs:simpleType name="probability-value-variable">
   <xs:restriction base="xs:string">
-   <xs:pattern value="\$[A-Za-z0-9]+" />
+   <xs:pattern value="$[A-Za-z0-9]+" />
   </xs:restriction>
  </xs:simpleType>
 
  <!-- TODO: move to external file, since this is used in both config and qsdl -->
  <xs:simpleType name="callback-argument-value-non-variable">
   <xs:restriction base="xs:string">
-   <xs:pattern value="[^\$].*" />
+   <xs:pattern value="[^$].*" />
   </xs:restriction>
  </xs:simpleType>
 
@@ -79,7 +79,7 @@
    </xs:element>
   </xs:sequence>
  </xs:complexType>
- 
+
  <xs:complexType name="files">
   <xs:sequence>
    <xs:element name="input-directory" type="xs:string" minOccurs="0" maxOccurs="1" form="qualified" />
@@ -93,7 +93,7 @@
    <xs:element name="trigger-callbacks" default="customTriggerCallbacks.py" minOccurs="0" type="xs:string" form="qualified" />
   </xs:sequence>
  </xs:complexType>
- 
+
  <xs:complexType name="query-file">
   <xs:simpleContent>
    <xs:extension base="xs:string">
@@ -102,7 +102,7 @@
    </xs:extension>
   </xs:simpleContent>
  </xs:complexType>
- 
+
  <xs:complexType name="result-file">
   <xs:simpleContent>
    <xs:extension base="xs:string">
@@ -111,7 +111,7 @@
    </xs:extension>
   </xs:simpleContent>
  </xs:complexType>
- 
+
  <xs:complexType name="relevance-file">
   <xs:simpleContent>
    <xs:extension base="xs:string">
@@ -120,7 +120,7 @@
    </xs:extension>
   </xs:simpleContent>
  </xs:complexType>
- 
+
  <!-- Topics element type -->
  <xs:complexType name="sessions">
   <xs:sequence>
@@ -137,7 +137,7 @@
    </xs:element>
   </xs:sequence>
  </xs:complexType>
- 
+
  <xs:complexType name="use-queries">
   <xs:attribute name="query-file" type="xs:string" use="required" />
   <xs:attribute name="topics" type="xs:string" />
@@ -145,7 +145,7 @@
   <xs:attribute name="query-file-format" type="config:query-file-format" use="optional" />
   <xs:attribute name="result-file-format" type="config:results-file-format" use="optional" />
  </xs:complexType>
- 
+
  <!-- Defaults element type -->
  <xs:complexType name="defaults">
   <xs:all>
@@ -175,7 +175,7 @@
    <xs:element name="output" minOccurs="0" maxOccurs="1" type="config:default-output" form="qualified" />
   </xs:all>
  </xs:complexType>
- 
+
  <xs:complexType name="options">
   <xs:all>
    <xs:element name="ignore-missing-relevance-data" minOccurs="0" form="qualified" default="false" type="xs:boolean" />
@@ -186,7 +186,7 @@
    <xs:element name="verbose-output" minOccurs="0" maxOccurs="1" type="xs:boolean" form="qualified" default="false" />
   </xs:all>
  </xs:complexType>
- 
+
  <!-- Output element type -->
  <xs:complexType name="session-output">
   <xs:all>
@@ -196,7 +196,7 @@
    <xs:element name="figures" minOccurs="0" maxOccurs="1" form="qualified" type="config:figures" />
   </xs:all>
  </xs:complexType>
- 
+
  <xs:complexType name="default-output">
   <xs:all>
    <xs:element name="format" minOccurs="0" maxOccurs="1" form="qualified" type="config:output-file-format" />
@@ -204,7 +204,7 @@
    <xs:element name="figures" minOccurs="0" maxOccurs="1" form="qualified" type="config:figures" />
   </xs:all>
  </xs:complexType>
- 
+
  <xs:complexType name="gain-types">
   <xs:sequence>
    <xs:element name="type" minOccurs="1" maxOccurs="unbounded" form="qualified">
@@ -223,7 +223,7 @@
    </xs:element>
   </xs:sequence>
  </xs:complexType>
- 
+
  <xs:complexType name="figures">
   <xs:sequence>
    <xs:element name="custom-figure" minOccurs="0" maxOccurs="unbounded" form="qualified">
@@ -264,14 +264,14 @@
    </xs:element>
   </xs:sequence>
  </xs:complexType>
- 
+
  <!-- Query file formats -->
  <xs:simpleType name="query-file-format">
   <xs:restriction base="xs:string">
    <xs:enumeration value="indri" />
   </xs:restriction>
  </xs:simpleType>
- 
+
  <!-- Result file formats -->
  <xs:simpleType name="results-file-format">
   <xs:restriction base="xs:string">
@@ -279,7 +279,7 @@
    <xs:enumeration value="trec" />
   </xs:restriction>
  </xs:simpleType>
- 
+
  <!-- Relevance file formats -->
  <xs:simpleType name="relevance-file-format">
   <xs:restriction base="xs:string">
@@ -287,7 +287,7 @@
    <xs:enumeration value="trec2" />
   </xs:restriction>
  </xs:simpleType>
-  
+
  <!-- Output formats -->
  <xs:simpleType name="output-file-format">
   <xs:restriction base="xs:string">
@@ -296,7 +296,7 @@
    <xs:enumeration value="csv" />
   </xs:restriction>
  </xs:simpleType>
- 
+
  <!-- Range axes for custom figures -->
  <xs:simpleType name="ranges">
   <xs:restriction base="xs:string">
