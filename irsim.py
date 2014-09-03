@@ -1,5 +1,5 @@
 import sys
-from pyxb.exceptions_ import ValidationError 
+from pyxb.exceptions_ import ValidationError
 import qsdl.parser.config01 as configPYXB
 from qsdl.parser.parsedConfig import ConfigDescriptor
 import qsdl.simulator.simulationRunner as simulationRunner
@@ -15,8 +15,8 @@ try:
     confDesc = ConfigDescriptor( configPYXB.CreateFromDocument(
                     file(configName).read()) )
 except IOError as e:
-    sys.stderr.write( 'ERROR: Configuration file (' + configName + ') is inaccessible.\n' )
-    sys.stderr.write(e.strerror + '\n')
+    sys.stderr.write( 'ERROR: Configuration file or a file referenced in the config is inaccessible.\n' )
+    sys.stderr.write(e.strerror + ' - ' + e.filename + '\n')
     sys.exit(1)
 except ValidationError as e:
     sys.stderr.write( 'ERROR: Validation of configuration file (' + configName + ') failed.\n' )
@@ -30,12 +30,12 @@ for runId in confDesc.get_run_id_iterator():
 
         costIncrement = 10
         sessid = str(simulationIterations[0].get_session_id())
-        
+
         #FIXME: figures module should derive filenames from runId
         figures.plotGainsAtRank( simulationIterations )
         figures.plotGainsAtCost(simulationIterations, costIncrement)
         figures.plotDerivedGains(simulationIterations, confDesc.get_derived_gains_dict( sessid ).iterkeys(), costIncrement)
         figures.plotCostsAtRank(simulationIterations)
-        
+
         figures.plotCustomFigures(simulationIterations, confDesc.get_custom_figures_dict(sessid))
-        
+
