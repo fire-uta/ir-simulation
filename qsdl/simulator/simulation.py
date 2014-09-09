@@ -377,7 +377,7 @@ class Simulation(Observable):
         except UnknownDocumentError.UnknownDocumentError:
             # No document for current rank was found. Check if
             # the reason is because we ran out of results.
-            if self.get_current_rank() > self.get_current_results_length():
+            if self.get_current_query_rank() > self.get_current_results_length():
                 return False
             raise
 
