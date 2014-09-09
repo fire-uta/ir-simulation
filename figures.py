@@ -45,7 +45,7 @@ def defaultPlot( xlabel, ylabel, xRange, yValueLists, runValues, figFileName ):
     plt2 = fig.add_subplot(212, sharex=plt, ylabel='runs')
     plt2.plot( xRange, runValues, label='nRuns' )
     fig.savefig( figFileName )
-    
+
 def plotGainsAtRank( runs ):
     sessid = str(runs[0].get_session_id())
     yValueLists = [
@@ -69,7 +69,7 @@ def plotGainsAtCost( runs, costIncrement ):
                    ]
     defaultPlot( 'cost', 'cg', stats.get_max_cost_range( runs, costIncrement ), yValueLists,
                  stats.get_amount_of_runs_at_cost_range(runs, costIncrement), get_filename('gainAtCost', runs))
-    
+
 def plotDerivedGains( runs, gainIds, costIncrement ):
     sessid = str(runs[0].get_session_id())
     for gainId in gainIds:
@@ -81,10 +81,10 @@ def plotDerivedGains( runs, gainIds, costIncrement ):
             ('avg +1SD', stats.get_avg_derived_gain_plusSD_at_total_rank_range( gainId, runs ) ),
             ('avg -1SD', stats.get_avg_derived_gain_plusSD_at_total_rank_range( gainId, runs, -1 ) )
             ]
-    
+
         defaultPlot( 'rank', gainId, stats.get_max_rank_range( runs ), yValueLists,
                  stats.get_amount_of_runs_at_total_rank_range(runs), get_filename(gainId + 'AtRank', runs))
-        
+
         yValueLists = [
             ('avg', stats.get_average_derived_gains_at_cost_range( gainId, runs, costIncrement ) ),
             ('top50%', stats.get_average_top_derived_gains_at_cost_range( runs, gainId, costIncrement, proportion = 50 ) ),
@@ -92,9 +92,9 @@ def plotDerivedGains( runs, gainIds, costIncrement ):
             ('avg +1SD', stats.get_avg_derived_gain_plusSD_at_cost_range( gainId, runs, costIncrement ) ),
             ('avg -1SD', stats.get_avg_derived_gain_plusSD_at_cost_range( gainId, runs, costIncrement, -1 ) )
             ]
-    
+
         defaultPlot( 'cost', gainId, stats.get_max_cost_range( runs, costIncrement ), yValueLists,
-                 stats.get_amount_of_runs_at_cost_range(runs, costIncrement), 
+                 stats.get_amount_of_runs_at_cost_range(runs, costIncrement),
                  gainId + 'AtCost-' + sessid + '.png' )
 
 def plotCostsAtRank( runs ):
@@ -103,8 +103,8 @@ def plotCostsAtRank( runs ):
         ('avg', stats.get_average_cumulated_costs_at_total_rank_range( runs ) ),
         ('top50%', stats.get_average_top_cumulated_costs_at_total_rank_range( runs, proportion=50 ) ),
         ('bottom50%', stats.get_average_top_cumulated_costs_at_total_rank_range( runs, proportion=50, bottom=True ) ),
-        ('avg +1SD', stats.get_avg_cumulated_cost_plusSD_at_total_rank_range( runs ) ),
-        ('avg -1SD', stats.get_avg_cumulated_cost_plusSD_at_total_rank_range( runs, factor = -1 ) )
+        ('avg +1SD', stats.get_avg_cumulated_cost_plusSD_at_total_rank_range( runs, increment = 1, factor = 1 ) ),
+        ('avg -1SD', stats.get_avg_cumulated_cost_plusSD_at_total_rank_range( runs, increment = 1, factor = -1 ) )
                    ]
     defaultPlot( 'rank', 'cg', stats.get_max_rank_range( runs ), yValueLists,
                  stats.get_amount_of_runs_at_total_rank_range(runs), get_filename('costAtRank', runs))
@@ -121,10 +121,10 @@ def plotCustomFigures( runs, customFiguresDict ):
         increment = float(xAxis.increments)
         rangeRange = rangeCallbacks[ range_ ][ 'max_range' ]( runs = runs, increment = increment )
         amtRuns = rangeCallbacks[ range_ ][ 'amt_runs' ]( runs = runs, increment = increment )
-        
+
         for values in yAxis.values:
             callback = callbacks[ values.function ][ range_ ]
             yValueLists.append( (values.label, callback( runs = runs, increment = increment, **pack_callback_arguments(values )) ) )
-        
+
         defaultPlot( range_, yAxis.label, rangeRange, yValueLists, amtRuns, get_filename(figure.id, runs))
-        
+
