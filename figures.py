@@ -106,7 +106,7 @@ def plotCostsAtRank( runs ):
         ('avg +1SD', stats.get_avg_cumulated_cost_plusSD_at_total_rank_range( runs, increment = 1, factor = 1 ) ),
         ('avg -1SD', stats.get_avg_cumulated_cost_plusSD_at_total_rank_range( runs, increment = 1, factor = -1 ) )
                    ]
-    defaultPlot( 'rank', 'cg', stats.get_max_rank_range( runs ), yValueLists,
+    defaultPlot( 'rank', 'cost', stats.get_max_rank_range( runs ), yValueLists,
                  stats.get_amount_of_runs_at_total_rank_range(runs), get_filename('costAtRank', runs))
 
 def plotCustomFigures( runs, customFiguresDict ):
