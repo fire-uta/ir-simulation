@@ -42,7 +42,11 @@ def run_sessions(config, runId):
             register_observers(simulationIteration)
 
             while True:
-                v_print( lambda : 'Gain: %g - Cost: %g' % (simulationIteration.currentState.cumulatedGain, simulationIteration.currentState.cumulatedCost) )
+                v_print( lambda : 'Gain: %g - Cost: %g - Total rank: %g - Query rank: %g' % (
+                    simulationIteration.currentState.cumulatedGain,
+                    simulationIteration.currentState.cumulatedCost,
+                    simulationIteration.currentState.totalRank,
+                    simulationIteration.currentState.currentQueryRank) )
 
                 '''
                 uinput = raw_input('Press return to advance, enter Q to quit.')
