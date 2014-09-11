@@ -9,6 +9,7 @@ import random
 import qsdl.parser.qsdl01 as qsdl
 import qsdl.simulator.triggers as triggers
 import qsdl.simulator.errors.TransitionError as TransitionError
+import qsdl.simulator.errors.NoNextTransitionError as NoNextTransitionError
 import qsdl.simulator.errors.UnknownDocumentError as UnknownDocumentError
 import qsdl.parser.parsedQSDL as parsedQSDL
 from qsdl.simulator.errors.CallbackError import CallbackError
@@ -362,7 +363,9 @@ class Simulation(Observable):
         # Didn't hit any transition.
         # Use calculated target as fallback.
         if H1.calculateTarget == None:
-            raise TransitionError.TransitionError( 'Unable to determine next transition for action %s. Please check simulation description.' % self.currentState.prevAction )
+            raise NoNextTransitionError.NoNextTransitionError( 'Unable to '
+                'determine next transition for action %s. Please check '
+                'simulation description.' % self.currentState.prevAction )
 
         # Notify observers of the fallback transition being accepted
         self.notifyObservers( TransitionAccepted( self.currentState, H1.calculateTarget ) )
