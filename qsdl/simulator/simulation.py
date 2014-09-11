@@ -396,6 +396,12 @@ class Simulation(Observable):
                 self.v_print( lambda : '   Attempted to examine a non-existing document. Assuming this is the end of results.' )
                 return False
             raise
+        except NoNextTransitionError.NoNextTransitionError:
+            # Next transition cannot be determined
+            # Check if this is due to queries and result documents running out
+            if self.current_query_is_last_query() and self.get_current_query_rank() == self.get_current_results_length():
+                self.v_print( lambda : '   No more queries or results available. Cannot continue.' )
+                return False
 
         # Notify observers of transition calculation ending
         self.notifyObservers( NextTransitionCalculationEnd( self.currentState ) )
