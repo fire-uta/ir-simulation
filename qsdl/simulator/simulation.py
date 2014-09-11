@@ -181,6 +181,13 @@ class Simulation(Observable):
     def increment_current_state_rank(self):
         self.currentState.totalRank += 1
         self.currentState.currentQueryRank += 1
+        if self.get_current_query_rank() > self.get_current_results_length():
+            raise TransitionError.TransitionError( 'Action %s attempted to move '
+                'to query rank %g, which is beyond results size %g. Please check '
+                'simulation description.' % (
+                    self.currentState.prevAction,
+                    self.currentState.currentQueryRank,
+                    self.get_current_results_length()) )
 
     def get_current_total_rank(self):
         return self.currentState.totalRank
