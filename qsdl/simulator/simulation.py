@@ -273,6 +273,11 @@ class Simulation(Observable):
             return self.get_transition_by_probability(actualValue, decay, H1, transition)
         else:
             self.v_print( lambda : '   Probability %s is calculated. Setting action as fallback.' % (valueToCheck) )
+            if H1.calculateTarget is not None:
+                raise TransitionError.TransitionError( 'Action %s contains '
+                    'multiple transition targets with calculated probabilities. '
+                    'Please check simulation description.' % (
+                        self.currentState.prevAction) )
             H1.calculateTarget = transition
             return None
 
