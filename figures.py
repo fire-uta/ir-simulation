@@ -40,11 +40,23 @@ def defaultPlot( xlabel, ylabel, xRange, yValueLists, runValues, figFileName ):
     fig = pyplot.figure( figsize=(12, 10), dpi=100, subplotpars=SubplotParams(right=0.8) )
     plt = fig.add_subplot(211, xlabel=xlabel, ylabel=ylabel)
     for (label,yValues) in yValueLists:
-        plt.plot( xRange, yValues, label=label )
+        plt.plot( xRange[:len(yValues)], yValues, label=label )
     plt.legend( loc=(1.05,0) )
-    plt2 = fig.add_subplot(212, sharex=plt, ylabel='runs')
-    plt2.plot( xRange, runValues, label='nRuns' )
+    #plt2 = fig.add_subplot(212, sharex=plt, ylabel='runs')
+    #plt2.plot( xRange[:len(runValues)], runValues, label='nRuns' )
     fig.savefig( figFileName )
+
+def plotAverageGainsAtRankAcrossSessions( sessions ):
+    yValueLists = []
+    max_rank_range = None
+    runValues = [] # TODO: get this?
+    for simulationIterations in sessions:
+        sessid = get_session_id(simulationIterations)
+        yValueLists.append( (sessid, stats.get_average_cumulated_gains_at_total_rank_range( simulationIterations )))
+        max_rank_range = max( max_rank_range, stats.get_max_rank_range( simulationIterations ) )
+
+    defaultPlot( 'rank', 'avg cg', max_rank_range, yValueLists, runValues, 'test-cross-topic.png')
+
 
 def plotGainsAtRank( runs ):
     sessid = str(runs[0].get_session_id())

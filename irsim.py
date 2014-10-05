@@ -26,7 +26,9 @@ except ValidationError as e:
 try:
     for runId in confDesc.get_run_id_iterator():
         figures.set_run_id(runId)
-        for simulationIterations in simulationRunner.run_sessions( confDesc, runId ):
+        sessions = simulationRunner.run_sessions( confDesc, runId )
+        figures.plotAverageGainsAtRankAcrossSessions( sessions )
+        for simulationIterations in sessions:
             confDesc.get_output_writer( simulationIterations, confDesc.get_random_seed(), configName, runId )()
 
             costIncrement = 10
