@@ -570,6 +570,9 @@ def get_cumulated_cost_variance( runs ):
     return sum( [ float(run.history[ -1 ].cumulatedCost**2) for run in runs ] )/float(len(runs)) \
         - get_average_cumulated_cost(runs)**2
 
+def get_averaged_list_of_values( list_of_lists ):
+    return [sum(n)/len(n) for n in zip(*list_of_lists)]
+
 def get_callback_interface():
     return {
             # CG

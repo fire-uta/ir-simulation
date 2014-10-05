@@ -42,20 +42,22 @@ def defaultPlot( xlabel, ylabel, xRange, yValueLists, runValues, figFileName ):
     for (label,yValues) in yValueLists:
         plt.plot( xRange[:len(yValues)], yValues, label=label )
     plt.legend( loc=(1.05,0) )
-    #plt2 = fig.add_subplot(212, sharex=plt, ylabel='runs')
-    #plt2.plot( xRange[:len(runValues)], runValues, label='nRuns' )
+    plt2 = fig.add_subplot(212, sharex=plt, ylabel='runs')
+    plt2.plot( xRange[:len(runValues)], runValues, label='nRuns' )
     fig.savefig( figFileName )
 
 def plotAverageGainsAtRankAcrossSessions( sessions ):
     yValueLists = []
     max_rank_range = None
-    runValues = [] # TODO: get this?
+    runAmounts = []
     for simulationIterations in sessions:
         sessid = get_session_id(simulationIterations)
         yValueLists.append( (sessid, stats.get_average_cumulated_gains_at_total_rank_range( simulationIterations )))
         max_rank_range = max( max_rank_range, stats.get_max_rank_range( simulationIterations ) )
+        runAmounts.append( stats.get_amount_of_runs_at_total_rank_range( simulationIterations ) )
 
-    defaultPlot( 'rank', 'avg cg', max_rank_range, yValueLists, runValues, 'test-cross-topic.png')
+    yValueLists.append( stats.get_averaged_list_of_values( zip(*yValueLists)[1] ) ) # Get average of averages
+    defaultPlot( 'rank', 'avg cg', max_rank_range, yValueLists, stats.get_averaged_list_of_values( runAmounts ), 'test-cross-topic.png')
 
 
 def plotGainsAtRank( runs ):
