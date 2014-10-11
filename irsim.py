@@ -9,6 +9,14 @@ import matplotlib as matplotlib
 matplotlib.use('AGG')
 import figures as figures
 
+
+def plot_cross_session_figures( sessions, costIncrement ):
+    figures.plotAverageGainsAtRankAcrossSessions( sessions )
+    figures.plotAverageGainsAtCostAcrossSessions( sessions, costIncrement )
+
+
+DEFAULT_COST_INCREMENT = 10
+
 configName = cliParser.get_config_file_name()
 confDesc = None
 try:
@@ -27,17 +35,18 @@ try:
     for runId in confDesc.get_run_id_iterator():
         figures.set_run_id(runId)
         sessions = simulationRunner.run_sessions( confDesc, runId )
-        figures.plotAverageGainsAtRankAcrossSessions( sessions )
+
+        plot_cross_session_figures( sessions, DEFAULT_COST_INCREMENT )
+
         for simulationIterations in sessions:
             confDesc.get_output_writer( simulationIterations, confDesc.get_random_seed(), configName, runId )()
 
-            costIncrement = 10
             sessid = str(simulationIterations[0].get_session_id())
 
             #FIXME: figures module should derive filenames from runId
             figures.plotGainsAtRank( simulationIterations )
-            figures.plotGainsAtCost(simulationIterations, costIncrement)
-            figures.plotDerivedGains(simulationIterations, confDesc.get_derived_gains_dict( sessid ).iterkeys(), costIncrement)
+            figures.plotGainsAtCost(simulationIterations, DEFAULT_COST_INCREMENT)
+            figures.plotDerivedGains(simulationIterations, confDesc.get_derived_gains_dict( sessid ).iterkeys(), DEFAULT_COST_INCREMENT)
             figures.plotCostsAtRank(simulationIterations)
 
             figures.plotCustomFigures(simulationIterations, confDesc.get_custom_figures_dict(sessid))
@@ -46,4 +55,3 @@ except ValidationError as e:
     sys.stderr.write( 'ERROR: Invalid content found in simulation description.\n' )
     sys.stderr.write(e.details() + '\n')
     sys.exit(1)
-

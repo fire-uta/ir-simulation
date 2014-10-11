@@ -6,8 +6,13 @@ Created on 3.10.2012
 '''
 
 def get_callback_map():
-    
-    def get_current_query_cost( simulation, key_cost ):
-        return float(key_cost) * len( simulation.get_current_query_text() )
 
-    return { 'get_default_current_query_cost': get_current_query_cost }
+  AVG_AUTOCOMPLETE_INPUT_LENGTH = 5
+
+  def get_current_query_cost( simulation, key_cost, interaction_type ):
+    if "basic" == interaction_type:
+      return float(key_cost) * len( simulation.get_current_query_text() )
+    elif "autocomplete" == interaction_type:
+      return float(key_cost) * AVG_AUTOCOMPLETE_INPUT_LENGTH
+
+  return { 'get_default_current_query_cost': get_current_query_cost }

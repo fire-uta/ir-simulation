@@ -56,8 +56,30 @@ def plotAverageGainsAtRankAcrossSessions( sessions ):
         max_rank_range = max( max_rank_range, stats.get_max_rank_range( simulationIterations ) )
         runAmounts.append( stats.get_amount_of_runs_at_total_rank_range( simulationIterations ) )
 
-    yValueLists.append( stats.get_averaged_list_of_values( zip(*yValueLists)[1] ) ) # Get average of averages
-    defaultPlot( 'rank', 'avg cg', max_rank_range, yValueLists, stats.get_averaged_list_of_values( runAmounts ), 'test-cross-topic.png')
+    yValueLists.append( ('avg', stats.get_averaged_list_of_values( zip(*yValueLists)[1] ) ) ) # Get average of averages
+    defaultPlot( 'rank', 'avg cg', max_rank_range, yValueLists,
+        stats.get_averaged_list_of_values( runAmounts ),
+        get_filename_prefix() + 'X-session-gainAtRank.png')
+
+
+def plotAverageGainsAtCostAcrossSessions( sessions, costIncrement ):
+    yValueLists = []
+    max_cost_range = None
+    runAmounts = []
+    for simulationIterations in sessions:
+        sessid = get_session_id(simulationIterations)
+        yValueLists.append( (sessid,
+            stats.get_average_cumulated_gains_at_cost_range(
+                simulationIterations, costIncrement )))
+        max_cost_range = max( max_cost_range,
+            stats.get_max_cost_range( simulationIterations, costIncrement ) )
+        runAmounts.append( stats.get_amount_of_runs_at_cost_range(
+            simulationIterations, costIncrement ) )
+
+    yValueLists.append( ('avg', stats.get_averaged_list_of_values( zip(*yValueLists)[1] ) ) ) # Get average of averages
+    defaultPlot( 'cost', 'avg cg', max_cost_range, yValueLists,
+        stats.get_averaged_list_of_values( runAmounts ),
+        get_filename_prefix() + 'X-session-gainAtCost.png')
 
 
 def plotGainsAtRank( runs ):
