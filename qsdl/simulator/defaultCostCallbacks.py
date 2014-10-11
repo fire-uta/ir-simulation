@@ -9,7 +9,7 @@ def get_callback_map():
 
   AVG_AUTOCOMPLETE_INPUT_LENGTH = 5
 
-  def get_current_query_cost( simulation, key_cost, interaction_type ):
+  def get_current_query_cost( simulation, key_cost, interaction_type = "basic" ):
     if "basic" == interaction_type:
       return float(key_cost) * len( simulation.get_current_query_text() )
     elif "autocomplete" == interaction_type:
