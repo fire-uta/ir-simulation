@@ -33,11 +33,16 @@ class ConfigDescriptor(object):
             return dict( [ [ gain.relevance_level, gain.gain ] for gain in gainsElement.gain ] )
 
         def get_session_map():
-            map_ = {}
-            for session in self.doc.sessions.session:
-                if hasattr( session, 'gains' ):
-                    session.gainsMap = get_gains_map( session.gains )
-                map_[ session.id ] = session
+            map_ = None
+            if self.doc.sessions.sessions_directory is not None:
+                map_ = sessionReader.read_sessions_from_directory(
+                    self.get_input_directory(), self.doc.sessions.sessions_directory )
+            else:
+                map_ = {}
+                for session in self.doc.sessions.session:
+                    if hasattr( session, 'gains' ):
+                        session.gainsMap = get_gains_map( session.gains )
+                    map_[ session.id ] = session
             return map_
 
         def get_run_map():
@@ -91,6 +96,12 @@ class ConfigDescriptor(object):
 
     def get_input_directory(self):
         return (self.doc.files.input_directory or '.') + '/'
+
+    # def get_sessions_directory(self):
+    #     if self.doc.sessions.sessions_directory is not None:
+    #         return self.get_input_directory() + self.doc.sessions.sessions_directory + '/'
+    #     else
+    #         return self.get_input_directory()
 
     def get_page_size(self, sessionId):
         session = self.get_session(sessionId)

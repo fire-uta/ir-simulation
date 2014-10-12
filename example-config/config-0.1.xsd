@@ -123,19 +123,22 @@
 
  <!-- Topics element type -->
  <xs:complexType name="sessions">
-  <xs:sequence>
-   <xs:element name="session" minOccurs="1" maxOccurs="unbounded" form="qualified">
-    <xs:complexType>
-     <xs:sequence>
-      <xs:element name="use-queries" form="qualified" type="config:use-queries" minOccurs="1" maxOccurs="unbounded" />
-      <xs:element name="iterations" minOccurs="0" maxOccurs="1" type="xs:integer" form="qualified" />
-      <xs:element name="page-size" minOccurs="0" maxOccurs="1" type="xs:integer" form="qualified" />
-      <xs:element name="output" type="config:session-output" form="qualified" />
-     </xs:sequence>
-     <xs:attribute name="id" use="required" type="xs:string" />
-    </xs:complexType>
-   </xs:element>
-  </xs:sequence>
+  <xs:choice minOccurs="1" maxOccurs="1">
+   <xs:element name="sessions-directory" type="xs:string" form="qualified" />
+   <xs:sequence>
+     <xs:element name="session" minOccurs="1" maxOccurs="unbounded" form="qualified">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="use-queries" form="qualified" type="config:use-queries" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="iterations" minOccurs="0" maxOccurs="1" type="xs:integer" form="qualified" />
+        <xs:element name="page-size" minOccurs="0" maxOccurs="1" type="xs:integer" form="qualified" />
+        <xs:element name="output" type="config:session-output" form="qualified" />
+       </xs:sequence>
+       <xs:attribute name="id" use="required" type="xs:string" />
+      </xs:complexType>
+     </xs:element>
+    </xs:sequence>
+  </xs:choice>
  </xs:complexType>
 
  <xs:complexType name="use-queries">
