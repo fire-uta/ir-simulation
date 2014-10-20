@@ -14,7 +14,7 @@ class Struct:
 
 queryFilePattern = re.compile('^([^_]+)_q(\d+)$')
 
-def handle_query_file_name_match( session_map, queryFileNameMatch, session_directory ):
+def handle_query_file_name_match( session_map, queryFileNameMatch, session_directory, input_directory ):
     query_file_name = queryFileNameMatch.group(0)
     session_id = queryFileNameMatch.group(1)
     query_number = queryFileNameMatch.group(2)
@@ -24,7 +24,10 @@ def handle_query_file_name_match( session_map, queryFileNameMatch, session_direc
         session_map[ session_id ] = Struct(
             id = session_id,
             use_queries = [],
-            output = None
+            output = Struct(
+                file = session_id + '.out',
+                directory = input_directory + session_directory
+            )
         )
 
     use_queries = Struct(
@@ -44,7 +47,7 @@ def read_sessions_from_directory( input_directory, sessions_directory ):
         for filename in filenames:
             queryFileNameMatch = queryFilePattern.match( filename )
             if queryFileNameMatch is not None:
-                handle_query_file_name_match( session_map, queryFileNameMatch, sessions_directory )
+                handle_query_file_name_match( session_map, queryFileNameMatch, sessions_directory, input_directory )
 
     return session_map
 
