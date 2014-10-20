@@ -197,6 +197,7 @@
    <xs:element name="file" minOccurs="0" maxOccurs="1" form="qualified" type="xs:string" />
    <xs:element name="gain-types" minOccurs="0" maxOccurs="1" form="qualified" type="config:gain-types" />
    <xs:element name="figures" minOccurs="0" maxOccurs="1" form="qualified" type="config:figures" />
+   <xs:element name="directory" minOccurs="0" maxOccurs="1" form="qualified" type="xs:string" />
   </xs:all>
  </xs:complexType>
 

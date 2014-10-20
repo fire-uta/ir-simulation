@@ -222,7 +222,10 @@ class ConfigDescriptor(object):
     def get_output_file(self, sessionId, fileMode, runId):
         session = self.get_session( sessionId )
         if hasattr( session.output, 'file' ) and session.output.file != None:
-            return file( runId + '_' + session.output.file, fileMode )
+            directory = ''
+            if hasattr( session.output, 'directory' ) and session.output.directory is not None:
+                directory = session.output.directory + '/'
+            return file( directory + runId + '_' + session.output.file, fileMode )
         return sys.stdout # default: write to stdout
 
     def get_output_format(self, sessionId):
