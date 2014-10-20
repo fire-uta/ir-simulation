@@ -43,7 +43,8 @@ try:
 
             sessid = str(simulationIterations[0].get_session_id())
 
-            #FIXME: figures module should derive filenames from runId
+            figures.set_output_directory( confDesc.get_output_directory( sessid ) )
+
             figures.plotGainsAtRank( simulationIterations )
             figures.plotGainsAtCost(simulationIterations, DEFAULT_COST_INCREMENT)
             figures.plotDerivedGains(simulationIterations, confDesc.get_derived_gains_dict( sessid ).iterkeys(), DEFAULT_COST_INCREMENT)

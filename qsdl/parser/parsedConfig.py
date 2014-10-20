@@ -219,13 +219,17 @@ class ConfigDescriptor(object):
         session = self.get_session( sessionId )
         return sessionReader.get_session_reader(session, self)
 
+    def get_output_directory(self, sessionId):
+        directory = '.'
+        session = self.get_session( sessionId )
+        if hasattr( session.output, 'directory' ) and session.output.directory is not None:
+            directory = session.output.directory
+        return directory
+
     def get_output_file(self, sessionId, fileMode, runId):
         session = self.get_session( sessionId )
         if hasattr( session.output, 'file' ) and session.output.file != None:
-            directory = ''
-            if hasattr( session.output, 'directory' ) and session.output.directory is not None:
-                directory = session.output.directory + '/'
-            return file( directory + runId + '_' + session.output.file, fileMode )
+            return file( self.get_output_directory(sessionId) + '/' + runId + '_' + session.output.file, fileMode )
         return sys.stdout # default: write to stdout
 
     def get_output_format(self, sessionId):
