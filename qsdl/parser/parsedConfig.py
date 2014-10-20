@@ -36,7 +36,7 @@ class ConfigDescriptor(object):
             map_ = None
             if self.doc.sessions.sessions_directory is not None:
                 map_ = sessionReader.read_sessions_from_directory(
-                    self.get_input_directory(), self.doc.sessions.sessions_directory )
+                    self.get_input_directory(), self.doc.sessions.sessions_directory.strip() )
             else:
                 map_ = {}
                 for session in self.doc.sessions.session:
