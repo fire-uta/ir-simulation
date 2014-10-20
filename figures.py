@@ -45,6 +45,7 @@ def defaultPlot( xlabel, ylabel, xRange, yValueLists, runValues, figFileName ):
     plt2 = fig.add_subplot(212, sharex=plt, ylabel='runs')
     plt2.plot( xRange[:len(runValues)], runValues, label='nRuns' )
     fig.savefig( figFileName )
+    pyplot.close( fig )
 
 def plotAverageGainsAtRankAcrossSessions( sessions ):
     yValueLists = []
