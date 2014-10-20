@@ -15,10 +15,15 @@ class FiguresConfig:
     pass
 
 FiguresConfig.runId = None
+FiguresConfig.outputDirectory = None
 
 
 def set_run_id(runId):
     FiguresConfig.runId = runId
+
+
+def set_output_directory(directory):
+    FiguresConfig.outputDirectory = directory
 
 
 def get_filename_prefix():
@@ -28,7 +33,8 @@ def get_filename_prefix():
 
 
 def get_filename(type, runs, format='png'):
-    return get_filename_prefix() + type + '-' + get_session_id(runs) + '.' + format
+    session_id = get_session_id(runs)
+    return FiguresConfig.outputDirectory + '/' + get_filename_prefix() + type + '-' + session_id + '.' + format
 
 def get_session_id( runs ):
     return str(runs[0].get_session_id())
