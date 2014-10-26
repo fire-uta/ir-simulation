@@ -10,6 +10,7 @@ import matplotlib.pyplot as pyplot
 import qsdl.parser.parsedQSDL as parsedQSDL
 from matplotlib.figure import SubplotParams
 from matplotlib.font_manager import FontProperties
+from itertools import cycle
 
 
 class FiguresConfig:
@@ -48,11 +49,17 @@ def get_plot_font():
     fontProp.set_size('small')
     return fontProp
 
+def get_markers_cycler():
+    markers = ['o','v','s','*','^','p','x','D','h','+']
+    return cycle(markers)
+
 def defaultPlot( xlabel, ylabel, xRange, yValueLists, runValues, figFileName ):
+    markers_cycler = get_markers_cycler()
+
     fig = pyplot.figure( figsize=(12, 10), dpi=100, subplotpars=SubplotParams(right=0.8) )
     plt = fig.add_subplot(211, xlabel=xlabel, ylabel=ylabel)
     for (label,yValues) in yValueLists:
-        plt.plot( xRange[:len(yValues)], yValues, label=label )
+        plt.plot( xRange[:len(yValues)], yValues, label=label, marker=next(markers_cycler) )
     lgd = plt.legend( loc='center left', bbox_to_anchor=(1,0.5), prop=get_plot_font(), fancybox=True, shadow=True, ncol=1 )
     plt2 = fig.add_subplot(212, sharex=plt, ylabel='runs')
     plt2.plot( xRange[:len(runValues)], runValues, label='nRuns' )
