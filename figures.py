@@ -53,10 +53,10 @@ def defaultPlot( xlabel, ylabel, xRange, yValueLists, runValues, figFileName ):
     plt = fig.add_subplot(211, xlabel=xlabel, ylabel=ylabel)
     for (label,yValues) in yValueLists:
         plt.plot( xRange[:len(yValues)], yValues, label=label )
-    plt.legend( loc='center left', bbox_to_anchor=(1,0.5), prop=get_plot_font(), fancybox=True, shadow=True, ncol=1 )
+    lgd = plt.legend( loc='center left', bbox_to_anchor=(1,0.5), prop=get_plot_font(), fancybox=True, shadow=True, ncol=1 )
     plt2 = fig.add_subplot(212, sharex=plt, ylabel='runs')
     plt2.plot( xRange[:len(runValues)], runValues, label='nRuns' )
-    fig.savefig( figFileName )
+    fig.savefig( figFileName, bbox_extra_artists=(lgd,), bbox_inches='tight' )
     pyplot.close( fig )
 
 def plotAverageGainsAtRankAcrossSessions( sessions ):
