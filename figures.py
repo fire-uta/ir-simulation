@@ -9,6 +9,7 @@ import stats
 import matplotlib.pyplot as pyplot
 import qsdl.parser.parsedQSDL as parsedQSDL
 from matplotlib.figure import SubplotParams
+from matplotlib.font_manager import FontProperties
 
 
 class FiguresConfig:
@@ -42,12 +43,17 @@ def get_session_id( runs ):
 def pack_callback_arguments( callback ):
     return parsedQSDL.pack_callback_arguments( callback )
 
+def get_plot_font():
+    fontProp = FontProperties()
+    fontProp.set_size('small')
+    return fontProp
+
 def defaultPlot( xlabel, ylabel, xRange, yValueLists, runValues, figFileName ):
     fig = pyplot.figure( figsize=(12, 10), dpi=100, subplotpars=SubplotParams(right=0.8) )
     plt = fig.add_subplot(211, xlabel=xlabel, ylabel=ylabel)
     for (label,yValues) in yValueLists:
         plt.plot( xRange[:len(yValues)], yValues, label=label )
-    plt.legend( loc=(1.05,0) )
+    plt.legend( loc=(1.02,0), prop=get_plot_font() )
     plt2 = fig.add_subplot(212, sharex=plt, ylabel='runs')
     plt2.plot( xRange[:len(runValues)], runValues, label='nRuns' )
     fig.savefig( figFileName )
