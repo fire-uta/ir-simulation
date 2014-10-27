@@ -70,10 +70,12 @@ def defaultPlot( xlabel, ylabel, xRange, yValueLists, runValues, figFileName ):
 
     fig = pyplot.figure( figsize=(12, 10), dpi=100, subplotpars=SubplotParams(right=0.8) )
     plt = fig.add_subplot(211, xlabel=xlabel, ylabel=ylabel)
+    plt.grid(color='#666666', linestyle=':', linewidth=0.5)
     for (label,yValues) in yValueLists:
         plt.plot( xRange[:len(yValues)], yValues, label=label, marker=next(markers_cycler) )
     lgd = plt.legend( loc='center left', bbox_to_anchor=(1,0.5), prop=get_plot_font(), fancybox=True, shadow=True, ncol=1 )
     plt2 = fig.add_subplot(212, sharex=plt, ylabel='runs')
+    plt2.grid(color='#666666', linestyle=':', linewidth=0.5)
     plt2.plot( xRange[:len(runValues)], runValues, label='nRuns' )
     fig.savefig( figFileName, bbox_extra_artists=(lgd,), bbox_inches='tight' )
     pyplot.close( fig )
