@@ -20,6 +20,17 @@ FiguresConfig.runId = None
 FiguresConfig.outputDirectory = None
 
 
+def setup_colors():
+    pyplot.rc('axes', color_cycle=['#ff0000','#00ff00','#0000ff',
+        '#ffff00','#ff00ff','#00ffff',
+        '#000000','#ff8000','#0080ff',
+        '#ff0080','#80ff00','#8000ff',
+        '#00ff80','#ff8080','#80ff80',
+        '#8080ff'])
+
+
+setup_colors()
+
 def set_run_id(runId):
     FiguresConfig.runId = runId
 
@@ -55,6 +66,7 @@ def get_markers_cycler():
 
 def defaultPlot( xlabel, ylabel, xRange, yValueLists, runValues, figFileName ):
     markers_cycler = get_markers_cycler()
+
 
     fig = pyplot.figure( figsize=(12, 10), dpi=100, subplotpars=SubplotParams(right=0.8) )
     plt = fig.add_subplot(211, xlabel=xlabel, ylabel=ylabel)
