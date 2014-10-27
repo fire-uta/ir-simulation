@@ -64,52 +64,65 @@ def get_markers_cycler():
     markers = ['o','v','s','*','^','p','x','D','h','+']
     return cycle(markers)
 
-def add_values_plot( figure, xLabel, yLabel, xRange, yValueLists ):
+def add_default_grid( plt ):
+    plt.grid(color='#666666', linestyle=':', linewidth=0.5)
+
+def plot_label_value_list_pairs( plt, labelValueListPairs, xRange ):
     markers_cycler = get_markers_cycler()
-    plt = figure.add_subplot(211, xlabel=xLabel, ylabel=yLabel)
-    plt.grid(color='#666666', linestyle=':', linewidth=0.5)
-    for (label,yValues) in yValueLists:
+    for (label,yValues) in labelValueListPairs:
         plt.plot( xRange[:len(yValues)], yValues, label=label, marker=next(markers_cycler) )
+
+def add_values_plot( figure, xLabel, yLabel, xRange, yValueLists ):
+    plt = figure.add_subplot(211, xlabel=xLabel, ylabel=yLabel)
+    add_default_grid(plt)
+    plot_label_value_list_pairs( plt, yValueLists, xRange )
     return plt
 
-def add_runs_plot( figure, sharedXPlot, xRange, runValues ):
-    plt = figure.add_subplot(212, sharex=sharedXPlot, ylabel='runs')
-    plt.grid(color='#666666', linestyle=':', linewidth=0.5)
-    plt.plot( xRange[:len(runValues)], runValues, label='nRuns' )
+def add_runs_plot( figure, sharedXPlot, xRange, runValues, multipleRunValueLists ):
+    plt = figure.add_subplot(212, sharex=sharedXPlot, ylabel='active runs')
+    add_default_grid(plt)
+    if multipleRunValueLists:
+        plot_label_value_list_pairs( plt, runValues, xRange )
+    else:
+        plt.plot( xRange[:len(runValues)], runValues, label='nRuns' )
     return plt
 
-def add_values_legend( valuesPlot ):
-    return valuesPlot.legend( loc='center left', bbox_to_anchor=(1,0.5),
+def add_default_legend( plt ):
+    return plt.legend( loc='center left', bbox_to_anchor=(1,0.5),
         prop=get_plot_font(), fancybox=True, shadow=True, ncol=1 )
 
-def defaultPlot( xlabel, ylabel, xRange, yValueLists, runValues, figFileName ):
+def defaultPlot( xlabel, ylabel, xRange, yValueLists, runValues, figFileName, multipleRunValueLists = False ):
     fig = pyplot.figure( figsize=(12, 10), dpi=100, subplotpars=SubplotParams(right=0.8) )
     valuesPlot = add_values_plot( fig, xlabel, ylabel, xRange, yValueLists )
-    valuesLegend = add_values_legend( valuesPlot )
-    add_runs_plot( fig, valuesPlot, xRange, runValues )
+    valuesLegend = add_default_legend( valuesPlot )
+    runsPlot = add_runs_plot( fig, valuesPlot, xRange, runValues, multipleRunValueLists )
+    if multipleRunValueLists:
+        add_default_legend( runsPlot )
     fig.savefig( figFileName, bbox_extra_artists=(valuesLegend,), bbox_inches='tight' )
     pyplot.close( fig )
 
 def plotAverageGainsAtRankAcrossSessions( sessions ):
     yValueLists = []
     max_rank_range = None
-    runAmounts = []
+    runValueLists = []
     for simulationIterations in sessions:
         sessid = get_session_id(simulationIterations)
         yValueLists.append( (sessid, stats.get_average_cumulated_gains_at_total_rank_range( simulationIterations )))
         max_rank_range = max( max_rank_range, stats.get_max_rank_range( simulationIterations ) )
-        runAmounts.append( stats.get_amount_of_runs_at_total_rank_range( simulationIterations ) )
+        runValueLists.append( (sessid, stats.get_amount_of_runs_at_total_rank_range( simulationIterations )) )
 
     yValueLists.append( ('avg', stats.get_averaged_list_of_values( zip(*yValueLists)[1] ) ) ) # Get average of averages
+
+    runValueLists.append( ('avg', stats.get_averaged_list_of_values( zip(*runValueLists)[1] ) ) ) # Ibid
+
     defaultPlot( 'rank', 'avg cg', max_rank_range, yValueLists,
-        stats.get_averaged_list_of_values( runAmounts ),
-        get_filename_prefix() + 'X-session-gainAtRank.png')
+        runValueLists, get_filename_prefix() + 'X-session-gainAtRank.png', True )
 
 
 def plotAverageGainsAtCostAcrossSessions( sessions, costIncrement ):
     yValueLists = []
     max_cost_range = None
-    runAmounts = []
+    runValueLists = []
     for simulationIterations in sessions:
         sessid = get_session_id(simulationIterations)
         yValueLists.append( (sessid,
@@ -117,13 +130,14 @@ def plotAverageGainsAtCostAcrossSessions( sessions, costIncrement ):
                 simulationIterations, costIncrement )))
         max_cost_range = max( max_cost_range,
             stats.get_max_cost_range( simulationIterations, costIncrement ) )
-        runAmounts.append( stats.get_amount_of_runs_at_cost_range(
-            simulationIterations, costIncrement ) )
+        runValueLists.append( (sessid, stats.get_amount_of_runs_at_cost_range(
+            simulationIterations, costIncrement ) ) )
 
     yValueLists.append( ('avg', stats.get_averaged_list_of_values( zip(*yValueLists)[1] ) ) ) # Get average of averages
+    runValueLists.append( ('avg', stats.get_averaged_list_of_values( zip(*runValueLists)[1] ) ) ) # Ibid
+
     defaultPlot( 'cost', 'avg cg', max_cost_range, yValueLists,
-        stats.get_averaged_list_of_values( runAmounts ),
-        get_filename_prefix() + 'X-session-gainAtCost.png')
+        runValueLists, get_filename_prefix() + 'X-session-gainAtCost.png', True )
 
 
 def plotGainsAtRank( runs ):
