@@ -72,10 +72,16 @@ def plot_label_value_list_pairs( plt, labelValueListPairs, xRange ):
     for (label,yValues) in labelValueListPairs:
         plt.plot( xRange[:len(yValues)], yValues, label=label, marker=next(markers_cycler) )
 
+def add_safety_margin( plt ):
+    upper_limit = float(plt.get_ylim()[1])
+    margin = 0.1 * upper_limit
+    plt.set_ylim([ -margin, upper_limit + margin ])
+
 def add_values_plot( figure, xLabel, yLabel, xRange, yValueLists ):
     plt = figure.add_subplot(211, xlabel=xLabel, ylabel=yLabel)
     add_default_grid(plt)
     plot_label_value_list_pairs( plt, yValueLists, xRange )
+    add_safety_margin( plt )
     return plt
 
 def add_runs_plot( figure, sharedXPlot, xRange, runValues, multipleRunValueLists ):
@@ -85,6 +91,7 @@ def add_runs_plot( figure, sharedXPlot, xRange, runValues, multipleRunValueLists
         plot_label_value_list_pairs( plt, runValues, xRange )
     else:
         plt.plot( xRange[:len(runValues)], runValues, label='nRuns' )
+    add_safety_margin( plt )
     return plt
 
 def add_default_legend( plt ):
