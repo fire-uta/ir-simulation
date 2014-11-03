@@ -254,9 +254,12 @@ class Simulation(Observable):
     def get_variable_probability_value(self, variableName):
         return self.config.get_variable_probability_value(self.runId, variableName)
 
+    def value_is_kind_of_number(self, valueToCheck):
+        return isinstance(valueToCheck, (int,long,float,complex))
+
     def get_transition_by_probability( self, valueToCheck, decay, H1, transition ):
-        # FIXME: type can currently be either from qsdl xsd or config xsd
-        if type( valueToCheck ) == qsdl.probability_value_direct:
+        type_of_value = type( valueToCheck )
+        if self.value_is_kind_of_number(valueToCheck):
             decayedValue = valueToCheck + decay
 
             # Notify observers that a probability value has been calculated
@@ -269,7 +272,7 @@ class Simulation(Observable):
                 self.v_print( lambda : '   %s < remaining probability %g. Skipping action.' % (decayedValue, H1.probVal - H1.cumulatingProbability) )
                 H1.cumulatingProbability += decayedValue
                 return None
-        elif type( valueToCheck ) == qsdl.probability_value_variable:
+        elif type_of_value == qsdl.probability_value_variable:
             actualValue = self.get_variable_probability_value(valueToCheck)
             return self.get_transition_by_probability(actualValue, decay, H1, transition)
         else:
