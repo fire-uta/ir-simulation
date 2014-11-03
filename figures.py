@@ -103,8 +103,6 @@ def defaultPlot( xlabel, ylabel, xRange, yValueLists, runValues, figFileName, mu
     valuesPlot = add_values_plot( fig, xlabel, ylabel, xRange, yValueLists )
     valuesLegend = add_default_legend( valuesPlot )
     runsPlot = add_runs_plot( fig, valuesPlot, xRange, runValues, multipleRunValueLists )
-    if multipleRunValueLists:
-        add_default_legend( runsPlot )
     fig.savefig( figFileName, bbox_extra_artists=(valuesLegend,), bbox_inches='tight' )
     pyplot.close( fig )
 
