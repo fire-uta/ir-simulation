@@ -16,6 +16,42 @@ import random
 import sys
 import callbackLoader
 
+def generate_range(start, stop, step):
+    current = float(start)
+
+    while current < stop:
+        yield current
+        current += step
+
+    yield stop
+
+
+def get_probabilities_map(run):
+    return dict([[probability.name, probability.value()] for probability in run.probability])
+
+def get_callback_argument_variables_map(run):
+    return dict([[arg.name, arg.value()] for arg in run.callback_argument])
+
+
+def generate_runs_for( run, run_map ):
+    genrun_setup = run.generate
+    runid_base = run.id
+    target_element = genrun_setup.callback_argument
+    target_type = "callback_arguments"
+    if target_element is None:
+        target_element = genrun_setup.probability
+        target_type = "probabilities"
+
+    for step in generate_range( target_element.range_start, target_element.range_end, target_element.step ):
+         generated_run = sessionReader.Struct(
+            probabilities = get_probabilities_map(run),
+            callback_arguments = get_callback_argument_variables_map(run)
+            )
+         target_dict = getattr(generated_run, target_type)
+         target_dict[ target_element.name ] = step
+
+         run_map[ str(runid_base) + '-' + str(target_element.name) + '-' + str(step) ] = generated_run
+
 class ConfigDescriptor(object):
     '''
     classdocs
@@ -51,16 +87,13 @@ class ConfigDescriptor(object):
                 map_['default'] = {}
                 return map_
             for run in self.doc.runs.run:
-                run.probabilities = get_probabilities_map(run)
-                run.callback_arguments = get_callback_argument_variables_map(run)
-                map_[run.id] = run
+                if run.generate is not None:
+                    generate_runs_for( run, map_ )
+                else:
+                    run.probabilities = get_probabilities_map(run)
+                    run.callback_arguments = get_callback_argument_variables_map(run)
+                    map_[run.id] = run
             return map_
-
-        def get_probabilities_map(run):
-            return dict([[probability.name, probability.value()] for probability in run.probability])
-
-        def get_callback_argument_variables_map(run):
-            return dict([[arg.name, arg.value()] for arg in run.callback_argument])
 
         self.defaultGains = get_gains_map( self.doc.defaults.gains )
         self.defaultGains = dict(
