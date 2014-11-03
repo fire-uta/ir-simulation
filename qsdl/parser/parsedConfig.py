@@ -18,6 +18,8 @@ import callbackLoader
 
 def generate_range(start, stop, step):
     current = float(start)
+    if isinstance(start, (int,long)) and isinstance(stop, (int,long)) and isinstance(step, (int,long)):
+        current = int(start)
 
     while current < stop:
         yield current
