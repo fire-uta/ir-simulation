@@ -36,6 +36,7 @@ try:
         figures.set_run_id(runId)
         sessions = simulationRunner.run_sessions( confDesc, runId )
 
+        figures.set_output_directory( confDesc.get_cross_session_output_directory() )
         plot_cross_session_figures( sessions, DEFAULT_COST_INCREMENT )
 
         for simulationIterations in sessions:

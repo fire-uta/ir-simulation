@@ -34,9 +34,9 @@ class ConfigDescriptor(object):
 
         def get_session_map():
             map_ = None
-            if self.doc.sessions.sessions_directory is not None:
+            if self.sessions_directory_is_given():
                 map_ = sessionReader.read_sessions_from_directory(
-                    self.get_input_directory(), self.doc.sessions.sessions_directory.strip() )
+                    self.get_input_directory(), self.get_sessions_directory_name() )
             else:
                 map_ = {}
                 for session in self.doc.sessions.session:
@@ -79,6 +79,9 @@ class ConfigDescriptor(object):
     def get_variable_probability_value(self, runId, variableName):
         run = self.runs[runId]
         return run.probabilities[variableName]
+
+    def get_sessions_directory_name(self):
+        return self.doc.sessions.sessions_directory.strip()
 
     def get_variable_callback_arguments(self, runId):
         run = self.runs[runId]
@@ -218,6 +221,15 @@ class ConfigDescriptor(object):
         '''
         session = self.get_session( sessionId )
         return sessionReader.get_session_reader(session, self)
+
+    def sessions_directory_is_given(self):
+        return hasattr( self.doc.sessions, 'sessions_directory' ) and \
+            self.doc.sessions.sessions_directory is not None
+
+    def get_cross_session_output_directory(self):
+        if self.sessions_directory_is_given():
+            return self.get_input_directory() + self.get_sessions_directory_name()
+        return '.'
 
     def get_output_directory(self, sessionId):
         directory = '.'

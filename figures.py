@@ -121,7 +121,7 @@ def plotAverageGainsAtRankAcrossSessions( sessions ):
     runValueLists.append( ('avg', stats.get_averaged_list_of_values( zip(*runValueLists)[1] ) ) ) # Ibid
 
     defaultPlot( 'rank', 'avg cg', max_rank_range, yValueLists,
-        runValueLists, get_filename_prefix() + 'X-session-gainAtRank.png', True )
+        runValueLists, FiguresConfig.outputDirectory + '/' + get_filename_prefix() + 'X-session-gainAtRank.png', True )
 
 
 def plotAverageGainsAtCostAcrossSessions( sessions, costIncrement ):
@@ -142,7 +142,7 @@ def plotAverageGainsAtCostAcrossSessions( sessions, costIncrement ):
     runValueLists.append( ('avg', stats.get_averaged_list_of_values( zip(*runValueLists)[1] ) ) ) # Ibid
 
     defaultPlot( 'cost', 'avg cg', max_cost_range, yValueLists,
-        runValueLists, get_filename_prefix() + 'X-session-gainAtCost.png', True )
+        runValueLists, FiguresConfig.outputDirectory + '/' + get_filename_prefix() + 'X-session-gainAtCost.png', True )
 
 
 def plotGainsAtRank( runs ):
