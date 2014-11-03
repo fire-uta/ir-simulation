@@ -95,7 +95,7 @@ def add_runs_plot( figure, sharedXPlot, xRange, runValues, multipleRunValueLists
     return plt
 
 def add_default_legend( plt ):
-    return plt.legend( loc='center left', bbox_to_anchor=(1,0.5),
+    return plt.legend( loc='upper left', bbox_to_anchor=(1.05,1.05),
         prop=get_plot_font(), fancybox=True, shadow=True, ncol=1 )
 
 def defaultPlot( xlabel, ylabel, xRange, yValueLists, runValues, figFileName, multipleRunValueLists = False ):
