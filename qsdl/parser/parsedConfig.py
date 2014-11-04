@@ -415,3 +415,9 @@ class ConfigDescriptor(object):
         self.doc.files.trigger_callbacks != None:
             return self.doc.files.trigger_callbacks.rsplit( '.', 1 )[ 0 ]
         return 'customTriggerCallbacks'
+
+    def only_cross_session_output(self):
+        if hasattr( self.doc, 'options') and hasattr( self.doc.options, 'only_x_session' ):
+            return self.doc.options.only_x_session
+        return False
+

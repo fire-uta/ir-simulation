@@ -39,19 +39,20 @@ try:
         figures.set_output_directory( confDesc.get_cross_session_output_directory() )
         plot_cross_session_figures( sessions, DEFAULT_COST_INCREMENT )
 
-        for simulationIterations in sessions:
-            confDesc.get_output_writer( simulationIterations, confDesc.get_random_seed(), configName, runId )()
+        if not confDesc.only_cross_session_output():
+            for simulationIterations in sessions:
+                confDesc.get_output_writer( simulationIterations, confDesc.get_random_seed(), configName, runId )()
 
-            sessid = str(simulationIterations[0].get_session_id())
+                sessid = str(simulationIterations[0].get_session_id())
 
-            figures.set_output_directory( confDesc.get_output_directory( sessid ) )
+                figures.set_output_directory( confDesc.get_output_directory( sessid ) )
 
-            figures.plotGainsAtRank( simulationIterations )
-            figures.plotGainsAtCost(simulationIterations, DEFAULT_COST_INCREMENT)
-            figures.plotDerivedGains(simulationIterations, confDesc.get_derived_gains_dict( sessid ).iterkeys(), DEFAULT_COST_INCREMENT)
-            figures.plotCostsAtRank(simulationIterations)
+                figures.plotGainsAtRank( simulationIterations )
+                figures.plotGainsAtCost(simulationIterations, DEFAULT_COST_INCREMENT)
+                figures.plotDerivedGains(simulationIterations, confDesc.get_derived_gains_dict( sessid ).iterkeys(), DEFAULT_COST_INCREMENT)
+                figures.plotCostsAtRank(simulationIterations)
 
-            figures.plotCustomFigures(simulationIterations, confDesc.get_custom_figures_dict(sessid))
+                figures.plotCustomFigures(simulationIterations, confDesc.get_custom_figures_dict(sessid))
 
 except ValidationError as e:
     sys.stderr.write( 'ERROR: Invalid content found in simulation description.\n' )

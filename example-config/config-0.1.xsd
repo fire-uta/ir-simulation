@@ -215,6 +215,7 @@
    <xs:element name="show-input-files" minOccurs="0" maxOccurs="1" type="xs:boolean" form="qualified" default="true" />
    <xs:element name="random-seed" minOccurs="0" maxOccurs="1" type="xs:integer" form="qualified" />
    <xs:element name="verbose-output" minOccurs="0" maxOccurs="1" type="xs:boolean" form="qualified" default="false" />
+   <xs:element name="only-x-session" minOccurs="0" maxOccurs="1" type="xs:boolean" form="qualified" default="false" />
   </xs:all>
  </xs:complexType>
 
