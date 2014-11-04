@@ -120,7 +120,9 @@ class ConfigDescriptor(object):
 
     def get_variable_callback_arguments(self, runId):
         run = self.runs[runId]
-        return run.callback_arguments
+        if hasattr(run, 'callback_arguments'):
+            return run.callback_arguments
+        return None
 
     def get_run_id_iterator(self):
         return self.runs.iterkeys()
