@@ -77,28 +77,7 @@
        </xs:complexType>
       </xs:element>
 
-      <xs:element name="generate" minOccurs="0" maxOccurs="1" form="qualified">
-        <xs:complexType>
-          <xs:choice>
-            <xs:element name="probability" minOccurs="0" maxOccurs="1" form="qualified">
-              <xs:complexType>
-                <xs:attribute name="name" type="config:probability-value-variable" use="required" />
-                <xs:attribute name="range-start" type="config:probability-value-direct" use="required" />
-                <xs:attribute name="range-end" type="config:probability-value-direct" use="required" />
-                <xs:attribute name="step" type="xs:decimal" use="required" />
-              </xs:complexType>
-            </xs:element>
-            <xs:element name="callback-argument" minOccurs="0" maxOccurs="1" form="qualified">
-              <xs:complexType>
-                <xs:attribute name="name" type="config:probability-value-variable" use="required" />
-                <xs:attribute name="range-start" type="xs:decimal" use="required" />
-                <xs:attribute name="range-end" type="xs:decimal" use="required" />
-                <xs:attribute name="step" type="xs:decimal" use="required" />
-              </xs:complexType>
-            </xs:element>
-          </xs:choice>
-        </xs:complexType>
-       </xs:element>
+      <xs:element name="generate" minOccurs="0" maxOccurs="1" form="qualified" type="config:list-of-probability-or-callback-arguments" />
 
      </xs:sequence>
      <xs:attribute name="id" use="required" type="xs:string" />
@@ -107,6 +86,29 @@
 
   </xs:sequence>
  </xs:complexType>
+
+<xs:complexType name="generated-probability">
+  <xs:attribute name="name" type="config:probability-value-variable" use="required" />
+  <xs:attribute name="range-start" type="config:probability-value-direct" use="required" />
+  <xs:attribute name="range-end" type="config:probability-value-direct" use="required" />
+  <xs:attribute name="step" type="xs:decimal" use="required" />
+</xs:complexType>
+
+<xs:complexType name="generated-callback-argument">
+  <xs:attribute name="name" type="config:probability-value-variable" use="required" />
+  <xs:attribute name="range-start" type="xs:decimal" use="required" />
+  <xs:attribute name="range-end" type="xs:decimal" use="required" />
+  <xs:attribute name="step" type="xs:decimal" use="required" />
+</xs:complexType>
+
+<xs:complexType name="list-of-probability-or-callback-arguments">
+  <xs:sequence>
+    <xs:choice maxOccurs="unbounded">
+      <xs:element name="probability" minOccurs="0" maxOccurs="unbounded" form="qualified" type="config:generated-probability" />
+      <xs:element name="callback-argument" minOccurs="0" maxOccurs="unbounded" form="qualified" type="config:generated-callback-argument" />
+    </xs:choice>
+  </xs:sequence>
+</xs:complexType>
 
  <xs:complexType name="files">
   <xs:sequence>

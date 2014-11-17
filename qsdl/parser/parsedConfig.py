@@ -15,6 +15,7 @@ from qsdl.simulator.errors.ConfigurationMissingError import ConfigurationMissing
 import random
 import sys
 import callbackLoader
+import itertools
 
 def generate_range(start, stop, step):
     current = float(start)
@@ -35,24 +36,38 @@ def get_callback_argument_variables_map(run):
     return dict([[arg.name, arg.value()] for arg in run.callback_argument])
 
 
+def duplicate_run( run ):
+    return sessionReader.Struct(
+        probabilities = get_probabilities_map(run),
+        callback_arguments = get_callback_argument_variables_map(run),
+        id = run.id
+    )
+
+
 def generate_runs_for( run, run_map ):
     genrun_setup = run.generate
-    runid_base = run.id
-    target_element = genrun_setup.callback_argument
-    target_type = "callback_arguments"
-    if target_element is None:
-        target_element = genrun_setup.probability
-        target_type = "probabilities"
 
-    for step in generate_range( target_element.range_start, target_element.range_end, target_element.step ):
-         generated_run = sessionReader.Struct(
-            probabilities = get_probabilities_map(run),
-            callback_arguments = get_callback_argument_variables_map(run)
-            )
-         target_dict = getattr(generated_run, target_type)
-         target_dict[ target_element.name ] = step
+    generated_variables = []
 
-         run_map[ str(runid_base) + '-' + str(target_element.name) + '-' + str(step) ] = generated_run
+    for cb_arg in genrun_setup.callback_argument:
+        arg_steps = [sessionReader.Struct(name=cb_arg.name, type="callback_arguments", step=step) \
+         for step in generate_range( cb_arg.range_start, cb_arg.range_end, cb_arg.step )]
+        generated_variables.append( arg_steps )
+
+    for prob in genrun_setup.probability:
+        arg_steps = [sessionReader.Struct(name=prob.name, type="probabilities", step=step) \
+         for step in generate_range( prob.range_start, prob.range_end, prob.step )]
+        generated_variables.append( arg_steps )
+
+    for combination in itertools.product( *generated_variables ):
+        generated_run = duplicate_run( run )
+        generated_id = str( generated_run.id )
+        for gen_var in combination:
+            target_dict = getattr(generated_run, gen_var.type)
+            target_dict[ gen_var.name ] = gen_var.step
+            generated_id += '-' + str(gen_var.name)[:10] + '-' + str(gen_var.step)
+        run_map[ generated_id ] = generated_run
+
 
 class ConfigDescriptor(object):
     '''
