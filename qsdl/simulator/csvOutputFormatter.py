@@ -120,19 +120,6 @@ def get_cross_session_output_formatter( config ):
         catWrite( [ 'avg gain' ], stats.get_average_cross_session_cumulated_gains_at_cost_range( sessions, costInterval ) )
         writer.writerow([])
 
-        # writer.writerow( [ 'avgTotalRank', stats.get_average_total_rank(runs)] )
-        # writer.writerow( [ 'avgGain', stats.get_average_cumulated_gain(runs)] )
-        # writer.writerow( [ 'avgCost', stats.get_average_cumulated_cost(runs)] )
-        # writer.writerow( [ 'maxTotalRank', stats.get_max_total_rank(runs)] )
-        # writer.writerow( [ 'maxGain', stats.get_max_cumulated_gain(runs)] )
-        # writer.writerow( [ 'maxCost', stats.get_max_cumulated_cost(runs)] )
-        # writer.writerow( [ 'minTotalRank', stats.get_min_total_rank(runs)] )
-        # writer.writerow( [ 'minGain', stats.get_min_cumulated_gain(runs)] )
-        # writer.writerow( [ 'minCost', stats.get_min_cumulated_cost(runs)] )
-        # writer.writerow( [ 'varTotalRank', stats.get_total_rank_variance(runs)] )
-        # writer.writerow( [ 'varGain', stats.get_cumulated_gain_variance(runs)] )
-        # writer.writerow( [ 'varCost', stats.get_cumulated_cost_variance(runs)] )
-
         return output.getvalue()
 
     def get_file_mode():
