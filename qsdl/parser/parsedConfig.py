@@ -296,15 +296,25 @@ class ConfigDescriptor(object):
             return file( self.get_output_directory(sessionId) + '/' + runId + '_' + session.output.file, fileMode )
         return sys.stdout # default: write to stdout
 
+    def get_cross_session_output_file(self, fileMode, runId):
+        return file( self.get_cross_session_output_directory() + '/' + runId + '_X-session.out', fileMode )
+
     def get_output_format(self, sessionId):
         session = self.get_session(sessionId)
         if hasattr( session.output, 'format' ) and session.output.format != None:
             return session.output.format
         return self.doc.defaults.output.format
 
+    def get_cross_session_output_format(self):
+        return self.doc.defaults.output.format
+
     def get_output_formatter(self, sessId):
         format_ = self.get_output_format(sessId)
         return outputMapper.get_output_formatters()[ format_ ]( self, sessId )
+
+    def get_cross_session_output_formatter(self):
+        format_ = self.get_cross_session_output_format()
+        return outputMapper.get_cross_session_output_formatters()[ format_ ]( self )
 
     def get_relevance_level(self, topic, docid):
         try:
@@ -344,6 +354,16 @@ class ConfigDescriptor(object):
             file_.write( formatter[ 'format_stats' ]( runs ) + '\n' )
             file_.write( formatter[ 'format_seed' ]( seed ) + '\n' )
             file_.write( formatter[ 'format_input_files' ]( configFileName, self.doc.files.simulation ) + '\n' )
+
+        return write
+
+    def get_cross_session_output_writer(self, sessions, runId):
+
+        # File writer
+        def write():
+            formatter = self.get_cross_session_output_formatter()
+            file_ = self.get_cross_session_output_file(formatter['get_file_mode'](), runId)
+            file_.write( formatter[ 'format_cross_session_stats' ]( sessions ) + '\n' )
 
         return write
 

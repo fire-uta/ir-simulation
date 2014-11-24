@@ -34,16 +34,16 @@ def get_output_formatter( config, sessionId ):
                     config.get_derived_gains_dict( sessionId ).keys() ] )
                 writer.writerow( stateAsList )
         return output.getvalue()
-    
+
     def handle_stats( runs ):
         output = cStringIO.StringIO()
         writer = csv.writer( output )
-        
+
         def catWrite(listA,listB):
             copy = listA[:]
             copy.extend( listB )
             writer.writerow( copy )
-        
+
         catWrite( [ 'rank' ], stats.get_max_rank_range( runs ) )
         catWrite( [ 'amt runs' ], stats.get_amount_of_runs_at_total_rank_range( runs ) )
         catWrite( [ 'avg gain' ], stats.get_average_cumulated_gains_at_total_rank_range( runs ) )
@@ -53,7 +53,7 @@ def get_output_formatter( config, sessionId ):
         catWrite( [ 'max cost' ], stats.get_max_cumulated_costs_at_total_rank_range( runs ) )
         catWrite( [ 'min cost' ], stats.get_min_cumulated_costs_at_total_rank_range( runs ) )
         writer.writerow([])
-        
+
         costInterval = 10
         catWrite( [ 'cost' ], stats.get_min_cost_range( runs, costInterval ) )
         catWrite( [ 'amt runs' ], stats.get_amount_of_runs_at_cost_range( runs, costInterval ) )
@@ -61,7 +61,7 @@ def get_output_formatter( config, sessionId ):
         catWrite( [ 'max gain' ], stats.get_max_cumulated_gains_at_cost_range( runs, costInterval ) )
         catWrite( [ 'min gain' ], stats.get_min_cumulated_gains_at_cost_range( runs, costInterval ) )
         writer.writerow([])
-        
+
         writer.writerow( [ 'avgTotalRank', stats.get_average_total_rank(runs)] )
         writer.writerow( [ 'avgGain', stats.get_average_cumulated_gain(runs)] )
         writer.writerow( [ 'avgCost', stats.get_average_cumulated_cost(runs)] )
@@ -74,17 +74,17 @@ def get_output_formatter( config, sessionId ):
         writer.writerow( [ 'varTotalRank', stats.get_total_rank_variance(runs)] )
         writer.writerow( [ 'varGain', stats.get_cumulated_gain_variance(runs)] )
         writer.writerow( [ 'varCost', stats.get_cumulated_cost_variance(runs)] )
-        
+
         return output.getvalue()
 
     def handle_seed( seed ):
         # No seed printed in CSV format
         return ''
-    
+
     def handle_input_files( configFileName, simulationFileName ):
         # No input file names printed in CSV format
         return ''
-    
+
     def get_file_mode():
         return 'wb'
 
@@ -97,3 +97,54 @@ def get_output_formatter( config, sessionId ):
             'get_file_mode': get_file_mode
             }
 
+def get_cross_session_output_formatter( config ):
+
+    def handle_cross_session_stats( sessions ):
+        output = cStringIO.StringIO()
+        writer = csv.writer( output )
+
+        def catWrite(listA,listB):
+            copy = listA[:]
+            copy.extend( listB )
+            writer.writerow( copy )
+
+        catWrite( [ 'rank' ], stats.get_max_cross_session_rank_range( sessions ) )
+        catWrite( [ 'avg amt runs' ], stats.get_average_amount_of_runs_at_total_rank_range( sessions ) )
+        catWrite( [ 'avg gain' ], stats.get_average_cross_session_cumulated_gains_at_total_rank_range( sessions ) )
+        # catWrite( [ 'max gain' ], stats.get_max_cumulated_gains_at_total_rank_range( runs ) )
+        # catWrite( [ 'min gain' ], stats.get_min_cumulated_gains_at_total_rank_range( runs ) )
+        # catWrite( [ 'avg cost' ], stats.get_average_cumulated_costs_at_total_rank_range( runs ) )
+        # catWrite( [ 'max cost' ], stats.get_max_cumulated_costs_at_total_rank_range( runs ) )
+        # catWrite( [ 'min cost' ], stats.get_min_cumulated_costs_at_total_rank_range( runs ) )
+        writer.writerow([])
+
+        # costInterval = 10
+        # catWrite( [ 'cost' ], stats.get_min_cost_range( runs, costInterval ) )
+        # catWrite( [ 'amt runs' ], stats.get_amount_of_runs_at_cost_range( runs, costInterval ) )
+        # catWrite( [ 'avg gain' ], stats.get_average_cumulated_gains_at_cost_range( runs, costInterval ) )
+        # catWrite( [ 'max gain' ], stats.get_max_cumulated_gains_at_cost_range( runs, costInterval ) )
+        # catWrite( [ 'min gain' ], stats.get_min_cumulated_gains_at_cost_range( runs, costInterval ) )
+        # writer.writerow([])
+
+        # writer.writerow( [ 'avgTotalRank', stats.get_average_total_rank(runs)] )
+        # writer.writerow( [ 'avgGain', stats.get_average_cumulated_gain(runs)] )
+        # writer.writerow( [ 'avgCost', stats.get_average_cumulated_cost(runs)] )
+        # writer.writerow( [ 'maxTotalRank', stats.get_max_total_rank(runs)] )
+        # writer.writerow( [ 'maxGain', stats.get_max_cumulated_gain(runs)] )
+        # writer.writerow( [ 'maxCost', stats.get_max_cumulated_cost(runs)] )
+        # writer.writerow( [ 'minTotalRank', stats.get_min_total_rank(runs)] )
+        # writer.writerow( [ 'minGain', stats.get_min_cumulated_gain(runs)] )
+        # writer.writerow( [ 'minCost', stats.get_min_cumulated_cost(runs)] )
+        # writer.writerow( [ 'varTotalRank', stats.get_total_rank_variance(runs)] )
+        # writer.writerow( [ 'varGain', stats.get_cumulated_gain_variance(runs)] )
+        # writer.writerow( [ 'varCost', stats.get_cumulated_cost_variance(runs)] )
+
+        return output.getvalue()
+
+    def get_file_mode():
+        return 'wb'
+
+    return {
+            'format_cross_session_stats': handle_cross_session_stats,
+            'get_file_mode': get_file_mode
+            }
