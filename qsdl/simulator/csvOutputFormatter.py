@@ -111,20 +111,14 @@ def get_cross_session_output_formatter( config ):
         catWrite( [ 'rank' ], stats.get_max_cross_session_rank_range( sessions ) )
         catWrite( [ 'avg amt runs' ], stats.get_average_amount_of_runs_at_total_rank_range( sessions ) )
         catWrite( [ 'avg gain' ], stats.get_average_cross_session_cumulated_gains_at_total_rank_range( sessions ) )
-        # catWrite( [ 'max gain' ], stats.get_max_cumulated_gains_at_total_rank_range( runs ) )
-        # catWrite( [ 'min gain' ], stats.get_min_cumulated_gains_at_total_rank_range( runs ) )
-        # catWrite( [ 'avg cost' ], stats.get_average_cumulated_costs_at_total_rank_range( runs ) )
-        # catWrite( [ 'max cost' ], stats.get_max_cumulated_costs_at_total_rank_range( runs ) )
-        # catWrite( [ 'min cost' ], stats.get_min_cumulated_costs_at_total_rank_range( runs ) )
+        catWrite( [ 'avg cost' ], stats.get_average_cross_session_cumulated_costs_at_total_rank_range( sessions ) )
         writer.writerow([])
 
-        # costInterval = 10
-        # catWrite( [ 'cost' ], stats.get_min_cost_range( runs, costInterval ) )
-        # catWrite( [ 'amt runs' ], stats.get_amount_of_runs_at_cost_range( runs, costInterval ) )
-        # catWrite( [ 'avg gain' ], stats.get_average_cumulated_gains_at_cost_range( runs, costInterval ) )
-        # catWrite( [ 'max gain' ], stats.get_max_cumulated_gains_at_cost_range( runs, costInterval ) )
-        # catWrite( [ 'min gain' ], stats.get_min_cumulated_gains_at_cost_range( runs, costInterval ) )
-        # writer.writerow([])
+        costInterval = 10
+        catWrite( [ 'cost' ], stats.get_min_cross_session_cost_range( sessions, costInterval ) )
+        catWrite( [ 'avg amt runs' ], stats.get_average_amount_of_runs_at_cost_range( sessions, costInterval ) )
+        catWrite( [ 'avg gain' ], stats.get_average_cross_session_cumulated_gains_at_cost_range( sessions, costInterval ) )
+        writer.writerow([])
 
         # writer.writerow( [ 'avgTotalRank', stats.get_average_total_rank(runs)] )
         # writer.writerow( [ 'avgGain', stats.get_average_cumulated_gain(runs)] )

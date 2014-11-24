@@ -242,6 +242,10 @@ def get_min_cost_range( runs, increment ):
     return calc_and_get( 'minCostRanges', [ id(runs), increment ],
                          lambda : range(0, int(get_min_cumulated_cost(runs)), increment) )
 
+def get_min_cross_session_cost_range( sessions, increment ):
+    return calc_and_get_by_fname( [ id(sessions), increment ],
+                         lambda : range(0, int(get_min_cross_session_cumulated_cost(sessions)), increment) )
+
 def get_max_cost_range( runs, increment ):
     return calc_and_get( 'maxCostRanges', [ id(runs), increment ],
                          lambda : range(0, int(get_max_cumulated_cost(runs)), increment) )
@@ -323,6 +327,10 @@ def get_average_cumulated_gains_at_cost_range( runs, increment ):
     return calc_and_get( 'avgGainsAtCostRanges', [ id(runs), increment ],
                          lambda : [ get_average_cumulated_gain_at_cost(runs, cost) for cost in get_max_cost_range(runs,increment) ] )
 
+def get_average_cross_session_cumulated_gains_at_cost_range( sessions, increment ):
+    return calc_and_get_by_fname( [ id(sessions), increment ],
+                         lambda : get_averaged_list_of_values( [ get_average_cumulated_gains_at_cost_range(runs, increment) for runs in sessions ] ) )
+
 def get_average_derived_gains_at_cost_range( gainId, runs, increment ):
     return calc_and_get_by_fname( [ gainId, id(runs), increment ],
                          lambda : [ get_average_derived_gain_at_cost(gainId, runs, cost) for cost in get_max_cost_range(runs,increment) ] )
@@ -347,9 +355,17 @@ def get_amount_of_runs_at_cost_range( runs, increment ):
     return calc_and_get( 'amtRunsAtCostRanges', [ id(runs), increment ],
                          lambda : [ get_amount_of_runs_at_cost(runs, cost) for cost in get_max_cost_range(runs,increment) ] )
 
+def get_average_amount_of_runs_at_cost_range( sessions, increment ):
+    return calc_and_get_by_fname( [ id(sessions), increment ],
+                         lambda : get_averaged_list_of_values( [ get_amount_of_runs_at_cost_range(runs, increment) for runs in sessions ] ) )
+
 def get_average_cumulated_costs_at_total_rank_range( runs, increment = 1 ):
     return calc_and_get( 'avgCostsAtRankRanges', [ id(runs), increment ],
                          lambda : [ get_average_cumulated_cost_at_total_rank(runs, rank) for rank in get_max_rank_range(runs,increment) ] )
+
+def get_average_cross_session_cumulated_costs_at_total_rank_range( sessions, increment = 1 ):
+    return calc_and_get_by_fname( [ id(sessions), increment ],
+                         lambda : get_averaged_list_of_values( [ get_average_cumulated_costs_at_total_rank_range(runs, increment) for runs in sessions ] ) )
 
 def get_average_top_cumulated_costs_at_total_rank_range( runs, increment = 1, proportion = 25, bottom = False ):
     return calc_and_get_by_fname( [ id(runs), increment, proportion, bottom ],
@@ -573,6 +589,10 @@ def get_min_cumulated_gain( runs ):
 def get_min_cumulated_cost( runs ):
     return calc_and_get_by_fname( [ id(runs) ],
                                   lambda : min( get_final_costs(runs) ) )
+
+def get_min_cross_session_cumulated_cost( sessions ):
+    return calc_and_get_by_fname( [ id(sessions) ],
+                                  lambda : min( [ get_min_cumulated_cost(runs) for runs in sessions ] ) )
 
 def get_min_total_rank( runs ):
     return calc_and_get_by_fname( [ id(runs) ],
