@@ -31,6 +31,8 @@ def pack_callback_arguments( callback ):
             argDict[ arg.name ] = arg.value_
         elif type(arg.value_) == qsdl.probability_value_variable:
             argDict[arg.name] = get_callback_argument_variable_value(arg.value_)
+        else:
+            argDict[arg.name] = arg.value_
     return argDict
 
 
