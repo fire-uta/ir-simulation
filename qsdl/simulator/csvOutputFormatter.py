@@ -119,6 +119,7 @@ def get_cross_session_output_formatter( config ):
         catWrite( [ 'cost' ], stats.get_min_cross_session_cost_range( sessions, costInterval ) )
         catWrite( [ 'avg amt runs' ], stats.get_average_amount_of_runs_at_cost_range( sessions, costInterval ) )
         catWrite( [ 'avg gain' ], stats.get_average_cross_session_cumulated_gains_at_cost_range( sessions, costInterval ) )
+        catWrite( [ 'avg gain SD' ], stats.get_average_cross_session_cumulated_gain_stddevs_at_cost_range( sessions, costInterval ) )
         writer.writerow([])
 
         return output.getvalue()
