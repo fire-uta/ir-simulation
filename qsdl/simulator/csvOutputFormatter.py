@@ -113,6 +113,12 @@ def get_cross_session_output_formatter( config ):
         catWrite( [ 'avg gain' ], stats.get_average_cross_session_cumulated_gains_at_total_rank_range( sessions ) )
         catWrite( [ 'avg cost' ], stats.get_average_cross_session_cumulated_costs_at_total_rank_range( sessions ) )
         catWrite( [ 'avg gain SD' ], stats.get_cross_session_cumulated_gain_stddevs_at_total_rank_range( sessions ) )
+
+        # Per-session averages
+        for runs in sessions:
+            sessid = str(runs[0].get_session_id())
+            catWrite( [ sessid + ' avg gain' ], stats.get_average_cumulated_gains_at_total_rank_range( runs ) )
+
         writer.writerow([])
 
         costInterval = 10
@@ -120,6 +126,12 @@ def get_cross_session_output_formatter( config ):
         catWrite( [ 'avg amt runs' ], stats.get_average_amount_of_runs_at_cost_range( sessions, costInterval ) )
         catWrite( [ 'avg gain' ], stats.get_average_cross_session_cumulated_gains_at_cost_range( sessions, costInterval ) )
         catWrite( [ 'avg gain SD' ], stats.get_average_cross_session_cumulated_gain_stddevs_at_cost_range( sessions, costInterval ) )
+
+        # Per-session averages
+        for runs in sessions:
+            sessid = str(runs[0].get_session_id())
+            catWrite( [ sessid + ' avg gain' ], stats.get_average_cumulated_gains_at_cost_range( runs, costInterval ) )
+
         writer.writerow([])
 
         return output.getvalue()
