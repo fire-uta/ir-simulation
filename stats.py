@@ -167,7 +167,8 @@ def get_gains_at_cost( runs, cost ):
             if state != None:
                 gains.append( float( state.cumulatedGain ) )
             else:
-                amtNones += 1
+                gains.append( float( run.history[ -1 ].cumulatedGain ) )
+                #amtNones += 1
         return (gains,amtNones)
     return calc_and_get( 'gainsAtCost', [ id(runs), cost ], get_gains )
 
@@ -205,8 +206,17 @@ def get_average_cumulated_gain_at_total_rank( runs, rank ):
     def getAvgGain():
         gains,amtNones = get_gains_at_total_rank(runs,rank)
         amtRuns = len(runs)
-        return float(sum( gains ))/float(amtRuns - amtNones)
+        denominator = amtRuns - amtNones
+        if denominator == 0:
+            return 0.0
+        return float(sum( gains ))/float(denominator)
     return calc_and_get( 'avgGainsAtRank', [ id(runs), rank ], getAvgGain )
+
+def get_average_cross_session_cumulated_gain_at_total_rank( sessions, rank ):
+    def getAvgGain():
+        gains = [get_average_cumulated_gain_at_total_rank( runs, rank ) for runs in sessions]
+        return float(sum( gains ))/float(len(gains))
+    return calc_and_get_by_fname( [ id(sessions), rank ], getAvgGain )
 
 def get_average_derived_gain_at_total_rank( gainId, runs, rank ):
     def getAvgGain():
@@ -253,6 +263,10 @@ def get_max_cost_range( runs, increment ):
 def get_cumulated_gain_stddevs_at_total_rank_range( runs, increment = 1 ):
     return calc_and_get( 'gainStddevsAtRankRanges', [ id(runs), increment ],
                          lambda : [ get_cumulated_gain_stddev_at_rank(runs, rank) for rank in get_max_rank_range(runs,increment) ] )
+
+def get_cross_session_cumulated_gain_stddevs_at_total_rank_range( sessions, increment = 1 ):
+    return calc_and_get_by_fname( [ id(sessions), increment ],
+                         lambda : [ get_average_cumulated_gain_stddev_at_rank(sessions, rank) for rank in get_max_cross_session_rank_range(sessions,increment) ] )
 
 def get_avg_cumulated_gain_plusSD_at_total_rank_range( runs, factor = 1.0, increment = 1 ):
     return calc_and_get( 'avgGainPlus1SDAtRankRanges', [ id(runs), increment, factor ],
@@ -397,6 +411,12 @@ def get_amount_of_runs_at_total_rank( runs, rank ):
         return len(runs) - amtNones
     return calc_and_get_by_fname( [ id(runs), rank ], getAmtRuns )
 
+def get_average_amount_of_runs_at_total_rank( sessions, rank ):
+    def getAmtRuns():
+        amounts = [get_amount_of_runs_at_total_rank(runs, rank) for runs in sessions]
+        return float(sum( amounts ))/float(len(amounts))
+    return calc_and_get_by_fname( [ id(sessions), rank ], getAmtRuns )
+
 def get_cumulated_gain_stddev_at_rank( runs, rank ):
     def get_stddev():
         gainSq = 0
@@ -415,6 +435,17 @@ def get_cumulated_gain_stddev_at_rank( runs, rank ):
         except ValueError:
             return 0.0 # Rounding errors cause variance to be negative in rare cases
     return calc_and_get_by_fname( [ id(runs), rank ], get_stddev )
+
+def get_average_cumulated_gain_stddev_at_rank( sessions, rank ):
+    def get_stddev():
+        squaredGains = [get_average_cumulated_gain_at_total_rank( runs, rank )**2 for runs in sessions]
+        avgOfSqGains = float(sum(squaredGains))/float(len(squaredGains))
+        sqOfAvgGain = get_average_cross_session_cumulated_gain_at_total_rank( sessions, rank )**2
+        try:
+            return math.sqrt( avgOfSqGains - sqOfAvgGain )
+        except ValueError:
+            return 0.0 # Rounding errors cause variance to be negative in rare cases
+    return calc_and_get_by_fname( [ id(sessions), rank ], get_stddev )
 
 def get_derived_gain_stddev_at_rank( gainId, runs, rank ):
     def get_stddev():
