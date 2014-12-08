@@ -10,9 +10,10 @@ matplotlib.use('AGG')
 import figures as figures
 
 
-def plot_cross_session_figures( sessions, costIncrement ):
+def plot_cross_session_figures( sessions, costIncrement, gainIds ):
     figures.plotAverageGainsAtRankAcrossSessions( sessions )
     figures.plotAverageGainsAtCostAcrossSessions( sessions, costIncrement )
+    figures.plotDerivedGainsAcrossSessions( sessions, gainIds, costIncrement )
 
 
 DEFAULT_COST_INCREMENT = 10
@@ -39,7 +40,7 @@ try:
         confDesc.get_cross_session_output_writer( sessions, runId )()
 
         figures.set_output_directory( confDesc.get_cross_session_output_directory() )
-        plot_cross_session_figures( sessions, DEFAULT_COST_INCREMENT )
+        plot_cross_session_figures( sessions, DEFAULT_COST_INCREMENT, confDesc.get_default_derived_gains_dict().keys() )
 
         if not confDesc.only_cross_session_output():
             for simulationIterations in sessions:
