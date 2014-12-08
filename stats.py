@@ -321,6 +321,10 @@ def get_average_derived_gains_at_total_rank_range( gainId, runs, increment = 1 )
     return calc_and_get_by_fname( [ id(runs), increment, gainId ],
                          lambda : [ get_average_derived_gain_at_total_rank(gainId, runs, rank ) for rank in get_max_rank_range(runs,increment) ] )
 
+def get_average_cross_session_derived_gains_at_total_rank_range( gainId, sessions, increment = 1 ):
+    return calc_and_get_by_fname( [ id(sessions), increment, gainId ],
+                         lambda : get_averaged_list_of_values( [ get_average_derived_gains_at_total_rank_range(gainId, runs, increment) for runs in sessions ] ) )
+
 def get_average_top_cumulated_gains_at_total_rank_range( runs, increment = 1, proportion = 25, bottom = False ):
     return calc_and_get_by_fname( [ id(runs), increment, proportion, bottom ],
                          lambda : [ get_average_top_cumulated_gain_at_total_rank(runs, rank, proportion, bottom) for rank in get_max_rank_range(runs,increment) ] )
