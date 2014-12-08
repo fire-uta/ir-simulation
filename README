@@ -112,7 +112,8 @@ Currently, the following triggers have been pre-defined:
  jumpToQuery(qidx), for jumping to a certain query
  nextQuery, for advancing to the next query
  nextDocument, for advancing to the next document
- flagAsSeen, for marking the document as having been seen
+ flagAsSeen, for marking the document as having been seen (seen documents
+  result in 0 cumulated gain)
 
 6.2 Costs
 
