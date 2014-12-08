@@ -153,18 +153,22 @@ def plotDerivedGainsAcrossSessions( sessions, gainIds, costIncrement ):
         ]
         yValueLists = yValueLists + [(get_session_id(runs), stats.get_average_derived_gains_at_total_rank_range(gainId, runs)) for runs in sessions]
 
+        runValueLists = [('avg', stats.get_average_amount_of_runs_at_total_rank_range(sessions) )] + [
+            (get_session_id(runs), stats.get_amount_of_runs_at_total_rank_range(runs) ) for runs in sessions]
+
         defaultPlot( 'rank', 'avg ' + gainId, stats.get_max_cross_session_rank_range( sessions ), yValueLists,
-                 stats.get_average_amount_of_runs_at_total_rank_range(sessions),
-                 FiguresConfig.outputDirectory + '/' + get_filename_prefix() + 'X-session-' + gainId + 'AtRank.png' )
+                 runValueLists, FiguresConfig.outputDirectory + '/' + get_filename_prefix() + 'X-session-' + gainId + 'AtRank.png', True )
 
         yValueLists = [
             ('avg', stats.get_average_cross_session_derived_gains_at_cost_range( gainId, sessions, costIncrement ) )
         ]
         yValueLists = yValueLists + [(get_session_id(runs), stats.get_average_derived_gains_at_cost_range(gainId, runs, costIncrement)) for runs in sessions]
 
+        runValueLists = [('avg', stats.get_average_amount_of_runs_at_cost_range(sessions, costIncrement) )] + [
+            (get_session_id(runs), stats.get_amount_of_runs_at_cost_range(runs, costIncrement) ) for runs in sessions]
+
         defaultPlot( 'cost', 'avg ' + gainId, stats.get_max_cross_session_cost_range( sessions, costIncrement ), yValueLists,
-                 stats.get_average_amount_of_runs_at_cost_range(sessions, costIncrement),
-                 FiguresConfig.outputDirectory + '/' + get_filename_prefix() + 'X-session-' + gainId + 'AtCost.png' )
+                 runValueLists, FiguresConfig.outputDirectory + '/' + get_filename_prefix() + 'X-session-' + gainId + 'AtCost.png', True )
 
 
 def plotGainsAtRank( runs ):
