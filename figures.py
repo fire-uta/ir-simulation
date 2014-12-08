@@ -150,7 +150,8 @@ def plotDerivedGainsAcrossSessions( sessions, gainIds, costIncrement ):
 
         yValueLists = [
             ('avg', stats.get_average_cross_session_derived_gains_at_total_rank_range( gainId, sessions ) )
-            ]
+        ]
+        yValueLists = yValueLists + [(get_session_id(runs), stats.get_average_derived_gains_at_total_rank_range(gainId, runs)) for runs in sessions]
 
         defaultPlot( 'rank', 'avg ' + gainId, stats.get_max_cross_session_rank_range( sessions ), yValueLists,
                  stats.get_average_amount_of_runs_at_total_rank_range(sessions),
@@ -158,7 +159,8 @@ def plotDerivedGainsAcrossSessions( sessions, gainIds, costIncrement ):
 
         yValueLists = [
             ('avg', stats.get_average_cross_session_derived_gains_at_cost_range( gainId, sessions, costIncrement ) )
-            ]
+        ]
+        yValueLists = yValueLists + [(get_session_id(runs), stats.get_average_derived_gains_at_cost_range(gainId, runs, costIncrement)) for runs in sessions]
 
         defaultPlot( 'cost', 'avg ' + gainId, stats.get_max_cross_session_cost_range( sessions, costIncrement ), yValueLists,
                  stats.get_average_amount_of_runs_at_cost_range(sessions, costIncrement),
