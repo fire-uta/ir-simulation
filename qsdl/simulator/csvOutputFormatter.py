@@ -132,6 +132,10 @@ def get_cross_session_output_formatter( config ):
         catWrite( [ 'avg gain' ], stats.get_average_cross_session_cumulated_gains_at_cost_range( sessions, costInterval ) )
         catWrite( [ 'avg gain SD' ], stats.get_average_cross_session_cumulated_gain_stddevs_at_cost_range( sessions, costInterval ) )
 
+        # Derived gains
+        for derivedGain in derivedGains.values():
+            catWrite( [ 'avg ' + derivedGain.id ], stats.get_average_cross_session_derived_gains_at_cost_range( derivedGain.id, sessions, costInterval ) )
+
         # Per-session averages
         for runs in sessions:
             sessid = str(runs[0].get_session_id())

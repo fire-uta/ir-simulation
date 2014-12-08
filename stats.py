@@ -361,6 +361,10 @@ def get_average_derived_gains_at_cost_range( gainId, runs, increment ):
     return calc_and_get_by_fname( [ gainId, id(runs), increment ],
                          lambda : [ get_average_derived_gain_at_cost(gainId, runs, cost) for cost in get_max_cost_range(runs,increment) ] )
 
+def get_average_cross_session_derived_gains_at_cost_range( gainId, sessions, increment ):
+    return calc_and_get_by_fname( [ gainId, id(sessions), increment ],
+                         lambda : get_averaged_list_of_values( [ get_average_derived_gains_at_cost_range(gainId, runs, increment) for runs in sessions ] ) )
+
 def get_average_top_cumulated_gains_at_cost_range( runs, increment, proportion = 25, bottom = False ):
     return calc_and_get_by_fname( [ id(runs), increment, proportion, bottom ],
                          lambda : [ get_average_top_cumulated_gain_at_cost(runs, cost, proportion, bottom) for cost in get_max_cost_range(runs,increment) ] )
