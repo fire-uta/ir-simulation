@@ -220,7 +220,7 @@ def plotDerivedGains( runs, gainIds, costIncrement ):
 
         defaultPlot( 'cost', gainId, stats.get_max_cost_range( runs, costIncrement ), yValueLists,
                  stats.get_amount_of_runs_at_cost_range(runs, costIncrement),
-                 gainId + 'AtCost-' + sessid + '.png' )
+                 get_filename( gainId + 'AtCost', runs ) )
 
 def plotCostsAtRank( runs ):
     sessid = str(runs[0].get_session_id())
