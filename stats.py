@@ -311,6 +311,10 @@ def get_avg_cumulated_gain_plusSD_at_cost_range( runs, increment, factor = 1.0 )
                          lambda : [ get_average_cumulated_gain_at_cost(runs, cost) + \
                                    factor * get_cumulated_gain_stddev_at_cost(runs, cost) for cost in get_max_cost_range(runs,increment) ] )
 
+def get_average_cross_session_derived_gain_stddevs_at_cost_range( gainId, sessions, increment ):
+    return calc_and_get_by_fname( [ gainId, id(sessions), increment ],
+                         lambda : [ get_average_derived_gain_stddev_at_cost(gainId, sessions, cost) for cost in get_max_cross_session_cost_range(sessions,increment) ] )
+
 def get_avg_derived_gain_plusSD_at_cost_range( gainId, runs, increment, factor = 1.0 ):
     return calc_and_get_by_fname( [ gainId, id(runs), increment, factor ],
                          lambda : [ get_average_derived_gain_at_cost(gainId, runs, cost) + \
@@ -539,6 +543,17 @@ def get_average_cumulated_gain_stddev_at_cost( sessions, cost ):
             return 0.0 # Rounding errors cause variance to be negative in rare cases
     return calc_and_get_by_fname( [ id(sessions), cost ], get_stddev )
 
+def get_average_derived_gain_stddev_at_cost( gainId, sessions, cost ):
+    def get_stddev():
+        squaredGains = [get_average_derived_gain_at_cost( gainId, runs, cost )**2 for runs in sessions]
+        avgOfSqGains = float(sum(squaredGains))/float(len(squaredGains))
+        sqOfAvgGain = get_average_cross_session_derived_gain_at_cost( gainId, sessions, cost )**2
+        try:
+            return math.sqrt( avgOfSqGains - sqOfAvgGain )
+        except ValueError:
+            return 0.0 # Rounding errors cause variance to be negative in rare cases
+    return calc_and_get_by_fname( [ gainId, id(sessions), cost ], get_stddev )
+
 def get_derived_gain_stddev_at_cost( gainId, runs, cost ):
     def get_stddev():
         gainSq = 0
@@ -614,6 +629,12 @@ def get_average_cross_session_cumulated_gain_at_cost( sessions, cost ):
         gains = [get_average_cumulated_gain_at_cost(runs, cost) for runs in sessions]
         return float(sum( gains ))/float(len(gains))
     return calc_and_get_by_fname( [ id(sessions), cost ], get_avg_gain )
+
+def get_average_cross_session_derived_gain_at_cost( gainId, sessions, cost ):
+    def get_avg_gain():
+        gains = [get_average_derived_gain_at_cost(gainId, runs, cost) for runs in sessions]
+        return float(sum( gains ))/float(len(gains))
+    return calc_and_get_by_fname( [ gainId, id(sessions), cost ], get_avg_gain )
 
 def get_average_derived_gain_at_cost( gainId, runs, cost ):
     def get_avg_gain():

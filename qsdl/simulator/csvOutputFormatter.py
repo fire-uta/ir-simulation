@@ -136,6 +136,7 @@ def get_cross_session_output_formatter( config ):
         # Derived gains
         for derivedGain in derivedGains.values():
             catWrite( [ 'avg ' + derivedGain.id ], stats.get_average_cross_session_derived_gains_at_cost_range( derivedGain.id, sessions, costInterval ) )
+            catWrite( [ 'avg ' + derivedGain.id + ' SD' ], stats.get_average_cross_session_derived_gain_stddevs_at_cost_range( derivedGain.id, sessions, costInterval ) )
 
         # Per-session averages
         for runs in sessions:
