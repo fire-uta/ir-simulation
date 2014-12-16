@@ -447,8 +447,8 @@ def get_min_cumulated_gain_at_total_rank( runs, rank ):
 
 def get_amount_of_runs_at_total_rank( runs, rank ):
     def getAmtRuns():
-        gains,amtNones = get_gains_at_total_rank(runs,rank)
-        return len(runs) - amtNones
+        def runIsActiveAtRank(run): return run.get_last_state_at_total_rank( rank ) is not None
+        return len( filter( runIsActiveAtRank, runs ) )
     return calc_and_get_by_fname( [ id(runs), rank ], getAmtRuns )
 
 def get_average_amount_of_runs_at_total_rank( sessions, rank ):
