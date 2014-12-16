@@ -125,25 +125,16 @@ def plotAverageGainsAtRankAcrossSessions( sessions ):
 
 
 def plotAverageGainsAtCostAcrossSessions( sessions, costIncrement ):
-    yValueLists = []
-    max_cost_range = None
-    runValueLists = []
-    for simulationIterations in sessions:
-        sessid = get_session_id(simulationIterations)
-        yValueLists.append( (sessid,
-            stats.get_average_cumulated_gains_at_cost_range(
-                simulationIterations, costIncrement )))
-        max_cost_range = max( max_cost_range,
-            stats.get_max_cost_range( simulationIterations, costIncrement ) )
-        runValueLists.append( (sessid, stats.get_amount_of_runs_at_cost_range(
-            simulationIterations, costIncrement ) ) )
+    yValueLists = [
+        ('avg', stats.get_average_cross_session_cumulated_gains_at_cost_range( sessions, costIncrement ) )
+    ]
+    yValueLists = yValueLists + [(get_session_id(runs), stats.get_average_cumulated_gains_at_cost_range(runs, costIncrement)) for runs in sessions]
 
-    yValueLists.append( ('avg', stats.get_averaged_list_of_values( zip(*yValueLists)[1] ) ) ) # Get average of averages
-    runValueLists.append( ('avg', stats.get_averaged_list_of_values( zip(*runValueLists)[1] ) ) ) # Ibid
+    runValueLists = [('avg', stats.get_average_amount_of_runs_at_cost_range(sessions, costIncrement) )] + [
+        (get_session_id(runs), stats.get_amount_of_runs_at_cost_range(runs, costIncrement) ) for runs in sessions]
 
-    defaultPlot( 'cost', 'avg cg', max_cost_range, yValueLists,
-        runValueLists, FiguresConfig.outputDirectory + '/' + get_filename_prefix() + 'X-session-gainAtCost.png', True )
-
+    defaultPlot( 'cost', 'avg cg', stats.get_max_cross_session_cost_range( sessions, costIncrement ), yValueLists,
+             runValueLists, FiguresConfig.outputDirectory + '/' + get_filename_prefix() + 'X-session-gainAtCost.png', True )
 
 def plotDerivedGainsAcrossSessions( sessions, gainIds, costIncrement ):
     for gainId in gainIds:
