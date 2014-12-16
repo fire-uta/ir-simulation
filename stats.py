@@ -150,7 +150,7 @@ def get_costs_at_total_rank( runs, rank ):
             if state != None:
                 costs.append( float( state.cumulatedCost ) )
             else:
-                amtNones += 1
+                costs.append( float( run.get_last_state().cumulatedCost ) )
         return (costs,amtNones)
     return calc_and_get( 'costsAtTotalRank', [ id(runs), rank ], get_costs )
 
@@ -467,7 +467,7 @@ def get_cumulated_gain_stddev_at_rank( runs, rank ):
             if state != None:
                 gainSq += state.cumulatedGain**2
             else:
-                amtNones += 1
+                gainSq += run.get_last_state().cumulatedGain**2
         avgOfSqGains = float(gainSq)/float(amtRuns - amtNones)
         sqOfAvgGain = get_average_cumulated_gain_at_total_rank( runs, rank )**2
         try:
@@ -508,7 +508,7 @@ def get_derived_gain_stddev_at_rank( gainId, runs, rank ):
             if state != None:
                 gainSq += state.gains[ gainId ]**2
             else:
-                amtNones += 1
+                gainSq += run.get_last_state().gains[ gainId ]**2
         avgOfSqGains = float(gainSq)/float(amtRuns - amtNones)
         sqOfAvgGain = get_average_derived_gain_at_total_rank( gainId, runs, rank )**2
         try:
@@ -527,7 +527,7 @@ def get_cumulated_gain_stddev_at_cost( runs, cost ):
             if state != None:
                 gainSq += state.cumulatedGain**2
             else:
-                amtNones += 1
+                gainSq += run.get_last_state().cumulatedGain**2
         avgOfSqGains = float(gainSq)/float(amtRuns - amtNones)
         sqOfAvgGain = get_average_cumulated_gain_at_cost( runs, cost )**2
         try:
@@ -568,7 +568,7 @@ def get_derived_gain_stddev_at_cost( gainId, runs, cost ):
             if state != None:
                 gainSq += state.gains[ gainId ]**2
             else:
-                amtNones += 1
+                gainSq += run.get_last_state().gains[ gainId ]**2
         avgOfSqGains = float(gainSq)/float(amtRuns - amtNones)
         sqOfAvgGain = get_average_derived_gain_at_cost( gainId, runs, cost )**2
         try:
@@ -587,7 +587,7 @@ def get_cumulated_cost_stddev_at_rank( runs, rank ):
             if state != None:
                 costSq += state.cumulatedCost**2
             else:
-                amtNones += 1
+                costSq += run.get_last_state().cumulatedCost**2
         avgOfSqCosts = float(costSq)/float(amtRuns - amtNones)
         sqOfAvgCost = get_average_cumulated_cost_at_total_rank( runs, rank )**2
         try:
