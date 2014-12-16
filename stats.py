@@ -65,21 +65,24 @@ def get_final_cross_session_total_ranks( sessions ):
                          lambda : [ max(get_final_total_ranks( runs )) for runs in sessions ] )
 
 def get_last_states_at_total_rank( runs, rank ):
-    return calc_and_get( 'lastStatesAtRank', [ id(runs), rank ],
-                         lambda : [ run.get_last_state_at_total_rank( rank ) for run in runs ] )
+    def get_states():
+        states = []
+        for run in runs:
+            last_state_at_rank = run.get_last_state_at_total_rank( rank )
+            if last_state_at_rank is not None:
+                states.append( last_state_at_rank )
+            else:
+                states.append( run.get_last_state() )
+        return states
+    return calc_and_get( 'lastStatesAtRank', [ id(runs), rank ], get_states )
 
 def get_gains_at_total_rank( runs, rank ):
     def get_gains():
-        gains = []
+        gains = [float( state.cumulatedGain ) for state in get_last_states_at_total_rank(runs, rank)]
         amtNones = 0
-        for state in get_last_states_at_total_rank(runs,rank):
-            if state != None:
-                gains.append( float( state.cumulatedGain ) )
-            else:
-                amtNones += 1
         return (gains,amtNones)
 
-    return calc_and_get( 'gainsAtTotalRank', [ id(runs), rank ], get_gains )
+    return calc_and_get_by_fname( [ id(runs), rank ], get_gains )
 
 def get_derived_gains_at_total_rank( gainId, runs, rank  ):
     def get_gains():

@@ -141,6 +141,9 @@ class Simulation(Observable):
     def current_query_is_last_query(self):
         return self.currentState.queryIndex == self.reader[ 'get_amount_of_queries' ]() - 1
 
+    def get_last_state(self):
+        return self.history[-1]
+
     def get_last_state_at_total_rank(self, rank):
         lastState = None
         for state in self.history:
