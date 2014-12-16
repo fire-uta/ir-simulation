@@ -673,9 +673,8 @@ def get_min_cumulated_gain_at_cost( runs, cost ):
 
 def get_amount_of_runs_at_cost( runs, cost ):
     def get_amt_runs():
-        gains,amtNones = get_gains_at_cost(runs,cost)
-        amtRuns = len( runs )
-        return amtRuns - amtNones
+        def runIsActive(run): return run.get_first_state_at_cost( cost ) is not None
+        return len( filter( runIsActive, runs ) )
     return calc_and_get_by_fname( [ id(runs), cost ], get_amt_runs )
 
 def get_average_cumulated_cost( runs ):
