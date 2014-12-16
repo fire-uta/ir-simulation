@@ -167,11 +167,10 @@ def get_gains_at_cost( runs, cost ):
         amtNones = 0
         for run in runs:
             state = run.get_first_state_at_cost( cost )
-            if state != None:
+            if state is not None:
                 gains.append( float( state.cumulatedGain ) )
             else:
-                gains.append( float( run.history[ -1 ].cumulatedGain ) )
-                #amtNones += 1
+                gains.append( float( run.get_last_state().cumulatedGain ) )
         return (gains,amtNones)
     return calc_and_get( 'gainsAtCost', [ id(runs), cost ], get_gains )
 
@@ -180,8 +179,10 @@ def get_derived_gains_at_cost( gainId, runs, cost ):
         gains = []
         for run in runs:
             state = run.get_first_state_at_cost( cost )
-            if state != None:
+            if state is not None:
                 gains.append( float( state.gains[ gainId ] ) )
+            else:
+                gains.append( float( run.get_last_state().gains[ gainId ] ) )
         return gains
     return calc_and_get_by_fname( [ gainId, id(runs), cost ], get_gains )
 
