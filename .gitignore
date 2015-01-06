@@ -4,3 +4,16 @@ __pycache__/
 
 # sdist manifest file (auto-generated)
 MANIFEST
+
+# Output files
+*.png
+*.csv
+*.out
+*.txt
+
+# Input files
+*.xml
+sim1/
+
+# sdist generated files
+dist/
