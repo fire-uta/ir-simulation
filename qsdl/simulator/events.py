@@ -7,7 +7,7 @@ Created on 20 Feb 2013
 class Event:
     def __init__(self,eventId = None):
         self.eventId = eventId or Event.getEventId( self.__class__ )
-        
+
     @staticmethod
     def getEventId( clazz ):
         return clazz.__name__
@@ -16,7 +16,7 @@ class SimulationStateEvent(Event):
     def __init__(self, state):
         Event.__init__(self)
         self.lastSimulationState = state
-        
+
 class TransitionEnd(SimulationStateEvent):
     def __init__(self, state):
         SimulationStateEvent.__init__(self,state)
@@ -41,15 +41,20 @@ class ActionEnd(SimulationStateEvent):
     def __init__(self, state):
         SimulationStateEvent.__init__(self,state)
 
+class DocumentChanged(SimulationStateEvent):
+    def __init__(self, state, docId):
+        SimulationStateEvent.__init__(self,state)
+        self.docId = docId
+
 class TransitionEvent(SimulationStateEvent):
     def __init__(self, state, pyxbTransition):
         SimulationStateEvent.__init__(self, state)
         self.transition = pyxbTransition
-        
+
 class TransitionConsiderBegin(TransitionEvent):
     def __init__(self, state, pyxbTransition):
         TransitionEvent.__init__(self, state, pyxbTransition)
-        
+
 class TransitionConsiderEnd(TransitionEvent):
     def __init__(self, state, pyxbTransition):
         TransitionEvent.__init__(self, state, pyxbTransition)
@@ -66,4 +71,4 @@ class ProbabilityCalculated(TransitionEvent):
     def __init__(self, state, pyxbTransition, probabilityValue):
         TransitionEvent.__init__(self, state, pyxbTransition)
         self.probabilityValue = probabilityValue
-        
+

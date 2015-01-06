@@ -47,7 +47,7 @@ class SimulationState(object):
     '''
     def __init__(self, sessionId, queryIndex, totalRank, cumulatedGain,
                  cumulatedCost, nextTransition, prevAction, iteration,
-                 currentQueryRank, gains):
+                 currentQueryRank, gains, documentId):
         self.transitionsConsidered = []
         self.transitionProbabilities = {}
         self.queryIndex = queryIndex # Index of query (in query file)
@@ -60,6 +60,7 @@ class SimulationState(object):
         self.prevAction = prevAction
         self.iteration = iteration
         self.currentQueryRank = currentQueryRank
+        self.documentId = documentId
         self.ready = False # Ready to run next action?
 
     def add_transition_probability(self, pyxbTransition, probabilityValue):
@@ -68,6 +69,9 @@ class SimulationState(object):
     def add_transition_considered(self, pyxbTransition):
         self.transitionsConsidered.append( pyxbTransition.target )
 
+    def set_document_id( self, documentId ):
+        self.documentId = documentId
+
     def set_ready(self):
         self.ready = True
 
@@ -75,7 +79,8 @@ class SimulationState(object):
         return SimulationState( self.sessionId, self.queryIndex, self.totalRank,
                                 self.cumulatedGain, self.cumulatedCost, None,
                                 self.nextTransition.target, self.iteration,
-                                self.currentQueryRank, self.gains.copy() )
+                                self.currentQueryRank, self.gains.copy(),
+                                self.documentId )
 
     def get_derived_gains(self):
         return self.gains
@@ -84,7 +89,7 @@ class SimulationState(object):
     def get_field_order( includeGains = True ):
         order = [ 'sessionId', 'iteration', 'prevAction', 'queryIndex', 'totalRank',
                 'currentQueryRank', 'cumulatedGain', 'cumulatedCost', 'transitionsConsidered',
-                'transitionProbabilities' ]
+                'transitionProbabilities', 'documentId' ]
         if includeGains:
             order.append( 'gains' )
         return order
@@ -117,7 +122,8 @@ class Simulation(Observable):
         self.currentState = SimulationState( sessionId, -1, 0, 0, 0,
                         create_initial_transition( simDesc.initialActionId ), None,
                         self.iteration, 0,
-                        self.config.get_initial_derived_gain_values_dict( sessionId ) )
+                        self.config.get_initial_derived_gain_values_dict( sessionId ),
+                        None )
         self.currentState.set_ready()
         self.conditionCallbacks = self.config.get_condition_callbacks()
         self.v_print = self.config.get_verbose_writer()

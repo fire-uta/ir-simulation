@@ -14,13 +14,16 @@ from qsdl.parser.parsedQSDL import SimDescriptor
 from qsdl.simulator.simulation import Simulation
 from qsdl.simulator.events import TransitionConsiderBegin
 from qsdl.simulator.events import ProbabilityCalculated
+from qsdl.simulator.events import DocumentChanged
 from qsdl.simulator.observers import TransitionConsiderationRecorder
 from qsdl.simulator.observers import ProbabilityRecorder
+from qsdl.simulator.observers import DocumentIdRecorder
 
 
 def register_observers(simulation):
     simulation.registerObserver( TransitionConsiderBegin, TransitionConsiderationRecorder() )
     simulation.registerObserver( ProbabilityCalculated, ProbabilityRecorder() )
+    simulation.registerObserver( DocumentChanged, DocumentIdRecorder() )
 
 
 def run_sessions(config, runId):
