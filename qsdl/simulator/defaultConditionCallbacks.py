@@ -44,7 +44,12 @@ def get_callback_map():
 
             'default_query_rank_reached':
             lambda simulation, rank_limit:
-                (simulation.get_current_query_rank() >= int(rank_limit)) }
+                (simulation.get_current_query_rank() >= int(rank_limit)),
+
+            'default_query_rank_reached_at_last_query':
+            lambda simulation, rank_limit:
+                (conditions['default_query_rank_reached'](simulation, rank_limit) and conditions['default_current_query_is_last'](simulation))
+    }
 
     negations = {}
     for condition in conditions.iterkeys():
