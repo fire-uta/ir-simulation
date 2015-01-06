@@ -213,6 +213,8 @@ class Simulation(Observable):
 
     def increment_current_state_query_index(self):
         self.currentState.queryIndex += 1
+        self.currentState.rank = 0
+        return self.reader[ 'skip_to_next_query' ]()
 
     def get_current_query_text(self):
         return self.reader[ 'get_current_query_text' ]()

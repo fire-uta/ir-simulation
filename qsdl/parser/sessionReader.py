@@ -9,8 +9,20 @@ import os
 import re
 import qsdl.parser.fileFormats as formats
 
+from qsdl.simulator.errors.TriggerError import TriggerError
+
+from operator import attrgetter
+from collections import OrderedDict
+
+class SessionReaderState: pass
+SessionReaderState.currentQRPairIndex = None
+SessionReaderState.currentQRPairQueryIndex = None
+
 class Struct:
     def __init__(self, **entries): self.__dict__.update(entries)
+
+    def __repr__(self, *args, **kwargs):
+        return repr( self.__dict__ )
 
 queryFilePattern = re.compile('^([^_]+)_q(\d+)$')
 
@@ -39,8 +51,15 @@ def handle_query_file_name_match( session_map, queryFileNameMatch, session_direc
     )
     session_map[ session_id ].use_queries.append( use_queries )
 
+
+def sort_session_map( unsorted_session_map ):
+    for session in unsorted_session_map.itervalues():
+        session.use_queries = sorted(session.use_queries, key=attrgetter('query_file'))
+    return unsorted_session_map
+
+
 def read_sessions_from_directory( input_directory, sessions_directory ):
-    session_map = {}
+    session_map = OrderedDict()
 
     directory = input_directory + sessions_directory
     for dirname, dirnames, filenames in os.walk( directory ):
@@ -49,6 +68,7 @@ def read_sessions_from_directory( input_directory, sessions_directory ):
             if queryFileNameMatch is not None:
                 handle_query_file_name_match( session_map, queryFileNameMatch, sessions_directory, input_directory )
 
+    session_map = sort_session_map( session_map )
     return session_map
 
 def get_session_reader( session, config ):
@@ -71,41 +91,50 @@ def get_session_reader( session, config ):
         qrPair = (queryReader,resultReader)
         qrPairs.append( qrPair )
 
-    currentQRPairIndex = 0
-    currentQRPairQueryIndex = 0
+    SessionReaderState.currentQRPairIndex = 0
+    SessionReaderState.currentQRPairQueryIndex = 0
 
-    def get_next_query():
-        (queryReader,resultReader) = qrPairs[ currentQRPairIndex ]
-        if currentQRPairQueryIndex == queryReader[ 'get_length' ]() - 1:
-            currentQRPairIndex += 1
-            currentQRPairQueryIndex = 0
-            (queryReader,resultReader) = qrPairs[ currentQRPairIndex ]
+    def get_current_qr_pair():
+        return qrPairs[ SessionReaderState.currentQRPairIndex ]
+
+    def get_current_query_reader():
+        (queryReader,resultReader) = get_current_qr_pair()
+        return queryReader
+
+    def skip_to_next_query():
+        if SessionReaderState.currentQRPairQueryIndex == get_current_query_reader()[ 'get_length' ]() - 1:
+            SessionReaderState.currentQRPairIndex += 1
+            SessionReaderState.currentQRPairQueryIndex = 0
         else:
-            currentQRPairQueryIndex += 1
-        return queryReader[ 'get_query_by_index' ]( currentQRPairQueryIndex )
+            SessionReaderState.currentQRPairQueryIndex += 1
+
+        if SessionReaderState.currentQRPairIndex >= len(qrPairs):
+            raise TriggerError("Session reader tried to advance to a non-existant query. " +
+                "This is likely caused by improper triggering of 'nextQuery' in simulation description. " +
+                "Please check if a next query is available before triggering the event.")
 
     def get_session_id():
         return session.id
 
     def get_current_query_text():
-        (queryReader,resultReader) = qrPairs[ currentQRPairIndex ]
-        (qid, queryText) = queryReader['get_query_by_index']( currentQRPairQueryIndex )
+        (queryReader,resultReader) = get_current_qr_pair()
+        (qid, queryText) = queryReader['get_query_by_index']( SessionReaderState.currentQRPairQueryIndex )
         return queryText
 
     def get_current_topic():
-        (queryReader,resultReader) = qrPairs[ currentQRPairIndex ]
-        (qid, queryText) = queryReader['get_query_by_index']( currentQRPairQueryIndex )
+        (queryReader,resultReader) = get_current_qr_pair()
+        (qid, queryText) = queryReader['get_query_by_index']( SessionReaderState.currentQRPairQueryIndex )
         return qid
 
     def get_current_relevance_level( docid ):
         return config.get_relevance_level( get_current_topic(), docid )
 
     def get_current_document_id( rank ):
-        (queryReader,resultReader) = qrPairs[ currentQRPairIndex ]
+        (queryReader,resultReader) = get_current_qr_pair()
         return resultReader[ 'get_document_id' ]( get_current_topic(), rank )
 
     def get_current_results_length():
-        (queryReader,resultReader) = qrPairs[ currentQRPairIndex ]
+        (queryReader,resultReader) = get_current_qr_pair()
         return resultReader[ 'get_results_length' ]( get_current_topic() )
 
     def get_amount_of_queries():
@@ -115,7 +144,7 @@ def get_session_reader( session, config ):
         return amount
 
     return {
-            'get_next_query': get_next_query,
+            'skip_to_next_query': skip_to_next_query,
             'get_session_id': get_session_id,
             'get_current_query_text': get_current_query_text,
             'get_current_relevance_level': get_current_relevance_level,
