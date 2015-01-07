@@ -448,10 +448,12 @@ class Simulation(Observable):
                 cost = self.simDesc.get_cost_callback_by_id( nextAction.cost )
                 if hasattr( cost, 'callback' ) and cost.callback != None:
                     try:
+                        cost_cbs = self.config.get_cost_callbacks()
+                        if not cost_cbs.has_key( cost.callback.name ):
+                            raise CallbackError( cost.callback.name )
                         self.currentState.cumulatedCost += \
-                                self.config.get_cost_callbacks()[ cost.callback.name ](
-                                    self, **cost.callbackArgs )
-                    except KeyError:
+                                cost_cbs[ cost.callback.name ]( self, **cost.callbackArgs )
+                    except CallbackError:
                         raise CallbackError(
                             'Cost callback \'%s\' not found. Check callback mapping. Available callbacks: %s' \
                             % ( cost.callback.name, repr(self.config.get_cost_callbacks().keys())))
