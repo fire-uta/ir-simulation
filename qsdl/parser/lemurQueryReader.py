@@ -6,6 +6,7 @@ Created on 19.10.2012
 '''
 
 import xml.etree.ElementTree
+import re
 
 class S: pass # Storage class
 S.readers = {}
@@ -23,6 +24,13 @@ def get_query_reader( queryFile, *ids ):
     if ids:
         queryOrder = ids
 
+    def strip_indri_operators( queryText ):
+        indriOpRegex = re.compile('#[^(]+\(([^)]+)\)')
+        matchResult = indriOpRegex.match( queryText )
+        if matchResult is None:
+            return queryText
+        return strip_indri_operators( matchResult.group(1) )
+
     def parse_query_file():
         queries = {}
         with open( queryFile ) as fh:
@@ -30,6 +38,7 @@ def get_query_reader( queryFile, *ids ):
             for query in queryFileTree.getroot().findall( 'query' ):
                 qid = query.find( 'number' ).text
                 queryText = query.find( 'text' ).text.strip()
+                queryText = strip_indri_operators( queryText ).strip()
                 queries[ qid ] = (qid, queryText)
                 if not ids:
                     queryOrder.append( qid )
