@@ -18,6 +18,7 @@ class FiguresConfig:
 
 FiguresConfig.runId = None
 FiguresConfig.outputDirectory = None
+FiguresConfig.avgPlotName = 'avg'
 
 
 def setup_colors():
@@ -70,7 +71,12 @@ def add_default_grid( plt ):
 def plot_label_value_list_pairs( plt, labelValueListPairs, xRange ):
     markers_cycler = get_markers_cycler()
     for (label,yValues) in labelValueListPairs:
-        plt.plot( xRange[:len(yValues)], yValues, label=label, marker=next(markers_cycler) )
+        zorder = None
+        lineWidth = 1.0
+        if label == FiguresConfig.avgPlotName:
+            zorder = len(labelValueListPairs) + 1
+            lineWidth = 5.0
+        plt.plot( xRange[:len(yValues)], yValues, label=label, marker=next(markers_cycler), zorder=zorder, linewidth=lineWidth )
 
 def add_safety_margin( plt ):
     upper_limit = float(plt.get_ylim()[1])
@@ -116,9 +122,9 @@ def plotAverageGainsAtRankAcrossSessions( sessions ):
         max_rank_range = max( max_rank_range, stats.get_max_rank_range( simulationIterations ) )
         runValueLists.append( (sessid, stats.get_amount_of_runs_at_total_rank_range( simulationIterations )) )
 
-    yValueLists.append( ('avg', stats.get_averaged_list_of_values( zip(*yValueLists)[1] ) ) ) # Get average of averages
+    yValueLists.append( (FiguresConfig.avgPlotName, stats.get_averaged_list_of_values( zip(*yValueLists)[1] ) ) ) # Get average of averages
 
-    runValueLists.append( ('avg', stats.get_averaged_list_of_values( zip(*runValueLists)[1] ) ) ) # Ibid
+    runValueLists.append( (FiguresConfig.avgPlotName, stats.get_averaged_list_of_values( zip(*runValueLists)[1] ) ) ) # Ibid
 
     defaultPlot( 'rank', 'avg cg', max_rank_range, yValueLists,
         runValueLists, FiguresConfig.outputDirectory + '/' + get_filename_prefix() + 'X-session-gainAtRank.png', True )
@@ -126,11 +132,11 @@ def plotAverageGainsAtRankAcrossSessions( sessions ):
 
 def plotAverageGainsAtCostAcrossSessions( sessions, costIncrement ):
     yValueLists = [
-        ('avg', stats.get_average_cross_session_cumulated_gains_at_cost_range( sessions, costIncrement ) )
+        (FiguresConfig.avgPlotName, stats.get_average_cross_session_cumulated_gains_at_cost_range( sessions, costIncrement ) )
     ]
     yValueLists = yValueLists + [(get_session_id(runs), stats.get_average_cumulated_gains_at_cost_range(runs, costIncrement)) for runs in sessions]
 
-    runValueLists = [('avg', stats.get_average_amount_of_runs_at_cost_range(sessions, costIncrement) )] + [
+    runValueLists = [(FiguresConfig.avgPlotName, stats.get_average_amount_of_runs_at_cost_range(sessions, costIncrement) )] + [
         (get_session_id(runs), stats.get_amount_of_runs_at_cost_range(runs, costIncrement) ) for runs in sessions]
 
     defaultPlot( 'cost', 'avg cg', stats.get_max_cross_session_cost_range( sessions, costIncrement ), yValueLists,
@@ -140,22 +146,22 @@ def plotDerivedGainsAcrossSessions( sessions, gainIds, costIncrement ):
     for gainId in gainIds:
 
         yValueLists = [
-            ('avg', stats.get_average_cross_session_derived_gains_at_total_rank_range( gainId, sessions ) )
+            (FiguresConfig.avgPlotName, stats.get_average_cross_session_derived_gains_at_total_rank_range( gainId, sessions ) )
         ]
         yValueLists = yValueLists + [(get_session_id(runs), stats.get_average_derived_gains_at_total_rank_range(gainId, runs)) for runs in sessions]
 
-        runValueLists = [('avg', stats.get_average_amount_of_runs_at_total_rank_range(sessions) )] + [
+        runValueLists = [(FiguresConfig.avgPlotName, stats.get_average_amount_of_runs_at_total_rank_range(sessions) )] + [
             (get_session_id(runs), stats.get_amount_of_runs_at_total_rank_range(runs) ) for runs in sessions]
 
         defaultPlot( 'rank', 'avg ' + gainId, stats.get_max_cross_session_rank_range( sessions ), yValueLists,
                  runValueLists, FiguresConfig.outputDirectory + '/' + get_filename_prefix() + 'X-session-' + gainId + 'AtRank.png', True )
 
         yValueLists = [
-            ('avg', stats.get_average_cross_session_derived_gains_at_cost_range( gainId, sessions, costIncrement ) )
+            (FiguresConfig.avgPlotName, stats.get_average_cross_session_derived_gains_at_cost_range( gainId, sessions, costIncrement ) )
         ]
         yValueLists = yValueLists + [(get_session_id(runs), stats.get_average_derived_gains_at_cost_range(gainId, runs, costIncrement)) for runs in sessions]
 
-        runValueLists = [('avg', stats.get_average_amount_of_runs_at_cost_range(sessions, costIncrement) )] + [
+        runValueLists = [(FiguresConfig.avgPlotName, stats.get_average_amount_of_runs_at_cost_range(sessions, costIncrement) )] + [
             (get_session_id(runs), stats.get_amount_of_runs_at_cost_range(runs, costIncrement) ) for runs in sessions]
 
         defaultPlot( 'cost', 'avg ' + gainId, stats.get_max_cross_session_cost_range( sessions, costIncrement ), yValueLists,
@@ -165,7 +171,7 @@ def plotDerivedGainsAcrossSessions( sessions, gainIds, costIncrement ):
 def plotGainsAtRank( runs ):
     sessid = str(runs[0].get_session_id())
     yValueLists = [
-        ('avg', stats.get_average_cumulated_gains_at_total_rank_range( runs ) ),
+        (FiguresConfig.avgPlotName, stats.get_average_cumulated_gains_at_total_rank_range( runs ) ),
         ('top50%', stats.get_average_top_cumulated_gains_at_total_rank_range( runs, proportion = 50 ) ),
         ('bottom50%', stats.get_average_top_cumulated_gains_at_total_rank_range( runs, proportion = 50, bottom = True ) ),
         ('avg +1SD', stats.get_avg_cumulated_gain_plusSD_at_total_rank_range( runs ) ),
@@ -177,7 +183,7 @@ def plotGainsAtRank( runs ):
 def plotGainsAtCost( runs, costIncrement ):
     sessid = str(runs[0].get_session_id())
     yValueLists = [
-        ('avg', stats.get_average_cumulated_gains_at_cost_range( runs, costIncrement ) ),
+        (FiguresConfig.avgPlotName, stats.get_average_cumulated_gains_at_cost_range( runs, costIncrement ) ),
         ('top50%', stats.get_average_top_cumulated_gains_at_cost_range( runs, costIncrement, proportion = 50 ) ),
         ('bottom50%', stats.get_average_top_cumulated_gains_at_cost_range( runs, costIncrement, proportion = 50, bottom = True ) ),
         ('avg +1SD', stats.get_avg_cumulated_gain_plusSD_at_cost_range( runs, costIncrement ) ),
@@ -191,7 +197,7 @@ def plotDerivedGains( runs, gainIds, costIncrement ):
     for gainId in gainIds:
 
         yValueLists = [
-            ('avg', stats.get_average_derived_gains_at_total_rank_range( gainId, runs ) ),
+            (FiguresConfig.avgPlotName, stats.get_average_derived_gains_at_total_rank_range( gainId, runs ) ),
             ('top50%', stats.get_average_top_derived_gains_at_total_rank_range( runs, gainId, proportion = 50 ) ),
             ('bottom50%', stats.get_average_top_derived_gains_at_total_rank_range( runs, gainId, proportion = 50, bottom= True ) ),
             ('avg +1SD', stats.get_avg_derived_gain_plusSD_at_total_rank_range( gainId, runs ) ),
@@ -202,7 +208,7 @@ def plotDerivedGains( runs, gainIds, costIncrement ):
                  stats.get_amount_of_runs_at_total_rank_range(runs), get_filename(gainId + 'AtRank', runs))
 
         yValueLists = [
-            ('avg', stats.get_average_derived_gains_at_cost_range( gainId, runs, costIncrement ) ),
+            (FiguresConfig.avgPlotName, stats.get_average_derived_gains_at_cost_range( gainId, runs, costIncrement ) ),
             ('top50%', stats.get_average_top_derived_gains_at_cost_range( runs, gainId, costIncrement, proportion = 50 ) ),
             ('bottom50%', stats.get_average_top_derived_gains_at_cost_range( runs, gainId, costIncrement, proportion = 50, bottom = True ) ),
             ('avg +1SD', stats.get_avg_derived_gain_plusSD_at_cost_range( gainId, runs, costIncrement ) ),
@@ -216,7 +222,7 @@ def plotDerivedGains( runs, gainIds, costIncrement ):
 def plotCostsAtRank( runs ):
     sessid = str(runs[0].get_session_id())
     yValueLists = [
-        ('avg', stats.get_average_cumulated_costs_at_total_rank_range( runs ) ),
+        (FiguresConfig.avgPlotName, stats.get_average_cumulated_costs_at_total_rank_range( runs ) ),
         ('top50%', stats.get_average_top_cumulated_costs_at_total_rank_range( runs, proportion=50 ) ),
         ('bottom50%', stats.get_average_top_cumulated_costs_at_total_rank_range( runs, proportion=50, bottom=True ) ),
         ('avg +1SD', stats.get_avg_cumulated_cost_plusSD_at_total_rank_range( runs, increment = 1, factor = 1 ) ),
