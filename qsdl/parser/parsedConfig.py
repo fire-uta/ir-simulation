@@ -12,6 +12,7 @@ from qsdl.simulator import defaultDecays
 from qsdl.parser import sessionReader
 import qsdl.parser.fileFormats as formats
 from qsdl.simulator.errors.ConfigurationMissingError import ConfigurationMissingError
+from qsdl.simulator.errors.ConfigurationInvalidError import ConfigurationInvalidError
 import random
 import sys
 import callbackLoader
@@ -119,12 +120,26 @@ class ConfigDescriptor(object):
         self.runs = get_run_map()
 
         # Relevances
+
+        def get_relevance_reader_generator_for( relFile ):
+            return formats.get_relevance_reader_generator( relFile.format )
+
+        def get_relevance_file_reader_for( relFile ):
+            return get_relevance_reader_generator_for( relFile )(
+                self.get_input_directory() + relFile.value() )
+
+        def get_relevances_for( relFile ):
+            reader = get_relevance_file_reader_for( relFile )
+            if not reader['can_parse']():
+                raise ConfigurationInvalidError("Relevance file (%s) cannot be parsed. Check format." % relFile.value())
+            return reader['get_relevances']()
+
+        def get_relevances():
+            return [ get_relevances_for( relFile ) for relFile in self.doc.files.relevance_file ]
+
         self.relevances = {}
-        for rels in \
-            [ formats.get_relevance_reader_generator( relFile.format )(
-                self.get_input_directory() + relFile.value() )['get_relevances']()
-                for relFile in self.doc.files.relevance_file ]:
-                    self.relevances.update( rels )
+        for rels in get_relevances():
+            self.relevances.update( rels )
 
     def get_variable_probability_value(self, runId, variableName):
         run = self.runs[runId]
