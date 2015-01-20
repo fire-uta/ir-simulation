@@ -10,6 +10,7 @@ import re
 import qsdl.parser.fileFormats as formats
 
 from qsdl.simulator.errors.TriggerError import TriggerError
+from qsdl.simulator.errors.ConfigurationInvalidError import ConfigurationInvalidError
 
 from operator import attrgetter
 from collections import OrderedDict
@@ -87,6 +88,9 @@ def get_session_reader( session, config ):
         resultFileFormat = useQueries.result_file_format or config.get_default_result_file_format()
         resultReaderGenerator = formats.get_result_reader_generator( resultFileFormat )
         resultReader = resultReaderGenerator( resultFileName )
+
+        if not resultReader['can_parse']():
+            raise ConfigurationInvalidError("Result file (%s) cannot be parsed. Check file format." % resultFileName)
 
         qrPair = (queryReader,resultReader)
         qrPairs.append( qrPair )
