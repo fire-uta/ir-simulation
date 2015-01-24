@@ -10,6 +10,7 @@ matplotlib.use('AGG')
 import figures as figures
 
 from qsdl.simulator.errors.ConfigurationInvalidError import ConfigurationInvalidError
+from qsdl.simulator.errors.CallbackError import CallbackError
 
 def plot_cross_session_figures( sessions, costIncrement, gainIds ):
     figures.plotAverageGainsAtRankAcrossSessions( sessions )
@@ -65,5 +66,10 @@ except ValidationError as e:
 
 except ConfigurationInvalidError as e:
     sys.stderr.write( 'ERROR: Invalid configuration detected. Please check configuration file.\n' )
+    sys.stderr.write( 'ERROR: ' + str(e) + '\n')
+    sys.exit(1)
+
+except CallbackError as e:
+    sys.stderr.write( 'ERROR: Invalid callback configuration detected.\n' )
     sys.stderr.write( 'ERROR: ' + str(e) + '\n')
     sys.exit(1)
