@@ -10,6 +10,7 @@ from qsdl.simulator import outputMapper
 from qsdl.simulator import defaultDerivedGainsCallbacks
 from qsdl.simulator import defaultDecays
 from qsdl.parser import sessionReader
+import qsdl.parser.cliParser as cliParser
 import qsdl.parser.fileFormats as formats
 from qsdl.simulator.errors.ConfigurationMissingError import ConfigurationMissingError
 from qsdl.simulator.errors.ConfigurationInvalidError import ConfigurationInvalidError
@@ -293,12 +294,23 @@ class ConfigDescriptor(object):
         return hasattr( self.doc.sessions, 'sessions_directory' ) and \
             self.doc.sessions.sessions_directory is not None
 
+    def get_override_output_directory(self):
+        return cliParser.get_output_directory()
+
     def get_cross_session_output_directory(self):
+        overrideDir = self.get_override_output_directory()
+        if overrideDir is not None:
+            return overrideDir
+
         if self.sessions_directory_is_given():
             return self.get_input_directory() + self.get_sessions_directory_name()
         return '.'
 
     def get_output_directory(self, sessionId):
+        overrideDir = self.get_override_output_directory()
+        if overrideDir is not None:
+            return overrideDir
+
         directory = '.'
         session = self.get_session( sessionId )
         if hasattr( session.output, 'directory' ) and session.output.directory is not None:
