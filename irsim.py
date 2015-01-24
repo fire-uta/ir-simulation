@@ -9,6 +9,7 @@ import matplotlib as matplotlib
 matplotlib.use('AGG')
 import figures as figures
 
+from qsdl.simulator.errors.ConfigurationInvalidError import ConfigurationInvalidError
 
 def plot_cross_session_figures( sessions, costIncrement, gainIds ):
     figures.plotAverageGainsAtRankAcrossSessions( sessions )
@@ -60,4 +61,9 @@ try:
 except ValidationError as e:
     sys.stderr.write( 'ERROR: Invalid content found in simulation description.\n' )
     sys.stderr.write(e.details() + '\n')
+    sys.exit(1)
+
+except ConfigurationInvalidError as e:
+    sys.stderr.write( 'ERROR: Invalid configuration detected. Please check configuration file.\n' )
+    sys.stderr.write( 'ERROR: ' + str(e) + '\n')
     sys.exit(1)
