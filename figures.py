@@ -113,21 +113,16 @@ def defaultPlot( xlabel, ylabel, xRange, yValueLists, runValues, figFileName, mu
     pyplot.close( fig )
 
 def plotAverageGainsAtRankAcrossSessions( sessions ):
-    yValueLists = []
-    max_rank_range = None
-    runValueLists = []
-    for simulationIterations in sessions:
-        sessid = get_session_id(simulationIterations)
-        yValueLists.append( (sessid, stats.get_average_cumulated_gains_at_total_rank_range( simulationIterations )))
-        max_rank_range = max( max_rank_range, stats.get_max_rank_range( simulationIterations ) )
-        runValueLists.append( (sessid, stats.get_amount_of_runs_at_total_rank_range( simulationIterations )) )
+    yValueLists = [
+        (FiguresConfig.avgPlotName, stats.get_average_cross_session_cumulated_gains_at_total_rank_range( sessions ) )
+    ]
+    yValueLists = yValueLists + [(get_session_id(runs), stats.get_average_cumulated_gains_at_total_rank_range(runs)) for runs in sessions]
 
-    yValueLists.append( (FiguresConfig.avgPlotName, stats.get_averaged_list_of_values( zip(*yValueLists)[1] ) ) ) # Get average of averages
+    runValueLists = [(FiguresConfig.avgPlotName, stats.get_average_amount_of_runs_at_total_rank_range(sessions) )] + [
+        (get_session_id(runs), stats.get_amount_of_runs_at_total_rank_range(runs) ) for runs in sessions]
 
-    runValueLists.append( (FiguresConfig.avgPlotName, stats.get_averaged_list_of_values( zip(*runValueLists)[1] ) ) ) # Ibid
-
-    defaultPlot( 'rank', 'avg cg', max_rank_range, yValueLists,
-        runValueLists, FiguresConfig.outputDirectory + '/' + get_filename_prefix() + 'X-session-gainAtRank.png', True )
+    defaultPlot( 'rank', 'avg cg', stats.get_max_cross_session_rank_range( sessions ), yValueLists,
+             runValueLists, FiguresConfig.outputDirectory + '/' + get_filename_prefix() + 'X-session-gainAtRank.png', True )
 
 
 def plotAverageGainsAtCostAcrossSessions( sessions, costIncrement ):

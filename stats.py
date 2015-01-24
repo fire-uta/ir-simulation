@@ -333,21 +333,31 @@ def get_avg_cumulated_cost_plusSD_at_total_rank_range( runs, increment = 1, fact
                          lambda : [ get_average_cumulated_cost_at_total_rank(runs, rank) + \
                                    factor * get_cumulated_cost_stddev_at_rank(runs, rank) for rank in get_max_rank_range(runs,increment) ] )
 
+def get_average_cumulated_gains_at_defined_rank_range( runs, rankRange ):
+    return calc_and_get_by_fname( [ id(runs), id(rankRange) ],
+                         lambda : [ get_average_cumulated_gain_at_total_rank(runs, rank) for rank in rankRange ] )
+
 def get_average_cumulated_gains_at_total_rank_range( runs, increment = 1 ):
     return calc_and_get( 'avgGainsAtRankRanges', [ id(runs), increment ],
-                         lambda : [ get_average_cumulated_gain_at_total_rank(runs, rank) for rank in get_max_rank_range(runs,increment) ] )
+                         lambda : get_average_cumulated_gains_at_defined_rank_range(runs, get_max_rank_range(runs,increment) ) )
 
 def get_average_cross_session_cumulated_gains_at_total_rank_range( sessions, increment = 1 ):
     return calc_and_get_by_fname( [ id(sessions), increment ],
-                         lambda : get_averaged_list_of_values( [ get_average_cumulated_gains_at_total_rank_range(runs, increment) for runs in sessions ] ) )
+                         lambda : get_averaged_list_of_values(
+                            [ get_average_cumulated_gains_at_defined_rank_range(runs, get_max_cross_session_rank_range(sessions,increment)) for runs in sessions ] ) )
+
+def get_average_derived_gains_at_defined_rank_range( gainId, runs, rankRange ):
+    return calc_and_get_by_fname( [ id(runs), id(rankRange), gainId ],
+                         lambda : [ get_average_derived_gain_at_total_rank(gainId, runs, rank) for rank in rankRange ] )
 
 def get_average_derived_gains_at_total_rank_range( gainId, runs, increment = 1 ):
     return calc_and_get_by_fname( [ id(runs), increment, gainId ],
-                         lambda : [ get_average_derived_gain_at_total_rank(gainId, runs, rank ) for rank in get_max_rank_range(runs,increment) ] )
+                         lambda : get_average_derived_gains_at_defined_rank_range( gainId, runs, get_max_rank_range(runs,increment) ) )
 
 def get_average_cross_session_derived_gains_at_total_rank_range( gainId, sessions, increment = 1 ):
     return calc_and_get_by_fname( [ id(sessions), increment, gainId ],
-                         lambda : get_averaged_list_of_values( [ get_average_derived_gains_at_total_rank_range(gainId, runs, increment) for runs in sessions ] ) )
+                         lambda : get_averaged_list_of_values(
+                            [ get_average_derived_gains_at_defined_rank_range(gainId, runs, get_max_cross_session_rank_range(sessions,increment)) for runs in sessions ] ) )
 
 def get_average_top_cumulated_gains_at_total_rank_range( runs, increment = 1, proportion = 25, bottom = False ):
     return calc_and_get_by_fname( [ id(runs), increment, proportion, bottom ],
@@ -373,21 +383,31 @@ def get_average_amount_of_runs_at_total_rank_range( sessions, increment = 1 ):
     return calc_and_get_by_fname( [ id(sessions), increment ],
                          lambda : get_averaged_list_of_values( [ get_amount_of_runs_at_total_rank_range(runs, increment) for runs in sessions ] ) )
 
+def get_average_cumulated_gains_at_defined_cost_range( runs, costRange ):
+    return calc_and_get_by_fname( [ id(runs), id(costRange) ],
+                         lambda : [ get_average_cumulated_gain_at_cost(runs, cost) for cost in costRange ] )
+
 def get_average_cumulated_gains_at_cost_range( runs, increment ):
     return calc_and_get( 'avgGainsAtCostRanges', [ id(runs), increment ],
-                         lambda : [ get_average_cumulated_gain_at_cost(runs, cost) for cost in get_max_cost_range(runs,increment) ] )
+                         lambda : get_average_cumulated_gains_at_defined_cost_range( runs, get_max_cost_range(runs,increment) ) )
 
 def get_average_cross_session_cumulated_gains_at_cost_range( sessions, increment ):
     return calc_and_get_by_fname( [ id(sessions), increment ],
-                         lambda : get_averaged_list_of_values( [ get_average_cumulated_gains_at_cost_range(runs, increment) for runs in sessions ] ) )
+                         lambda : get_averaged_list_of_values(
+                            [ get_average_cumulated_gains_at_defined_cost_range(runs, get_max_cross_session_cost_range(sessions,increment)) for runs in sessions ] ) )
+
+def get_average_derived_gains_at_defined_cost_range( gainId, runs, costRange ):
+    return calc_and_get_by_fname( [ gainId, id(runs), id(costRange) ],
+                         lambda : [ get_average_derived_gain_at_cost(gainId, runs, cost) for cost in costRange ] )
 
 def get_average_derived_gains_at_cost_range( gainId, runs, increment ):
     return calc_and_get_by_fname( [ gainId, id(runs), increment ],
-                         lambda : [ get_average_derived_gain_at_cost(gainId, runs, cost) for cost in get_max_cost_range(runs,increment) ] )
+                         lambda : get_average_derived_gains_at_defined_cost_range( gainId, runs, get_max_cost_range(runs,increment) ) )
 
 def get_average_cross_session_derived_gains_at_cost_range( gainId, sessions, increment ):
     return calc_and_get_by_fname( [ gainId, id(sessions), increment ],
-                         lambda : get_averaged_list_of_values( [ get_average_derived_gains_at_cost_range(gainId, runs, increment) for runs in sessions ] ) )
+                         lambda : get_averaged_list_of_values(
+                            [ get_average_derived_gains_at_defined_cost_range(gainId, runs, get_max_cross_session_cost_range(sessions, increment)) for runs in sessions ] ) )
 
 def get_average_top_cumulated_gains_at_cost_range( runs, increment, proportion = 25, bottom = False ):
     return calc_and_get_by_fname( [ id(runs), increment, proportion, bottom ],
