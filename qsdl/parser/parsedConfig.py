@@ -217,7 +217,7 @@ class ConfigDescriptor(object):
         if not hasattr( self, 'costCallbacks' ):
             customCallbacks = callbackLoader.get_callback_module(
                             self.get_cost_callbacks_module_name() )
-            if customCallbacks != None:
+            if customCallbacks is not None:
                 cbMap = defaultCostCallbacks.get_callback_map().copy()
                 cbMap.update( customCallbacks.get_callback_map() )
                 self.costCallbacks = cbMap

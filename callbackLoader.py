@@ -13,6 +13,8 @@ from qsdl.simulator.errors.ConfigurationInvalidError import ConfigurationInvalid
 
 def get_callback_module( name ):
 
+    scriptDir = os.path.dirname(os.path.realpath(__file__))
+
     # Already loaded?
     try:
         return sys.modules[name]
@@ -20,16 +22,11 @@ def get_callback_module( name ):
         pass
 
     fp = pathname = description = None
-
     try:
-        fp, pathname, description = imp.find_module(name, [os.getcwdu()])
+        fp, pathname, description = imp.find_module(name, [os.getcwdu(), scriptDir])
         return imp.load_module(name, fp, pathname, description)
-    except ImportError as e:
-        raise ConfigurationInvalidError("Callback file not found: %s" % name)
     except:
         return None
     finally:
         if fp:
             fp.close()
-
-
