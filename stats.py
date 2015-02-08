@@ -429,9 +429,13 @@ def get_amount_of_runs_at_cost_range( runs, increment ):
     return calc_and_get( 'amtRunsAtCostRanges', [ id(runs), increment ],
                          lambda : [ get_amount_of_runs_at_cost(runs, cost) for cost in get_max_cost_range(runs,increment) ] )
 
+def get_average_amount_of_runs_at_cost( sessions, cost ):
+    return calc_and_get_by_fname( [ id(sessions), cost ],
+                         lambda : get_average_value( [ get_amount_of_runs_at_cost(runs, cost) for runs in sessions ] ) )
+
 def get_average_amount_of_runs_at_cost_range( sessions, increment ):
     return calc_and_get_by_fname( [ id(sessions), increment ],
-                         lambda : get_averaged_list_of_values( [ get_amount_of_runs_at_cost_range(runs, increment) for runs in sessions ] ) )
+                         lambda : [ get_average_amount_of_runs_at_cost(sessions, cost) for cost in get_max_cross_session_cost_range(sessions, increment) ] )
 
 def get_average_cumulated_costs_at_total_rank_range( runs, increment = 1 ):
     return calc_and_get( 'avgCostsAtRankRanges', [ id(runs), increment ],
@@ -748,6 +752,9 @@ def get_cumulated_gain_variance( runs ):
 def get_cumulated_cost_variance( runs ):
     return sum( [ float(run.history[ -1 ].cumulatedCost**2) for run in runs ] )/float(len(runs)) \
         - get_average_cumulated_cost(runs)**2
+
+def get_average_value( list ):
+    return float(sum(list))/float(len(list))
 
 def get_averaged_list_of_values( list_of_lists ):
     return [sum(n)/len(n) for n in zip(*list_of_lists)]
