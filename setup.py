@@ -1,7 +1,7 @@
 # -*- coding: latin-1 -*-
 from distutils.core import setup
 setup(name='irsim',
-      version='0.1.18',
+      version='0.1.19',
       py_modules=['irsim', 'callbackLoader', 'stats', 'figures'],
       packages=['qsdl', 'qsdl.parser', 'qsdl.simulator', 'qsdl.simulator.errors'],
       data_files=[ ( 'example-config',
