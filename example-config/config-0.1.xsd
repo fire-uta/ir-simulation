@@ -304,6 +304,7 @@
  <xs:simpleType name="query-file-format">
   <xs:restriction base="xs:string">
    <xs:enumeration value="indri" />
+   <xs:enumeration value="whoosh" />
   </xs:restriction>
  </xs:simpleType>
 
@@ -312,6 +313,7 @@
   <xs:restriction base="xs:string">
    <xs:enumeration value="trecweb" />
    <xs:enumeration value="trec" />
+   <xs:enumeration value="whoosh" />
   </xs:restriction>
  </xs:simpleType>
 
@@ -320,6 +322,7 @@
   <xs:restriction base="xs:string">
    <xs:enumeration value="trec" />
    <xs:enumeration value="trec2" />
+   <xs:enumeration value="whoosh" />
   </xs:restriction>
  </xs:simpleType>
 
