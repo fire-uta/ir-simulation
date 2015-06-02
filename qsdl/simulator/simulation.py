@@ -194,10 +194,11 @@ class Simulation(Observable):
         if self.get_current_query_rank() > self.get_current_results_length():
             raise TransitionError.TransitionError( 'Action %s attempted to move '
                 'to query rank %g, which is beyond results size %g. Please check '
-                'simulation description.' % (
+                'simulation description. %s' % (
                     self.currentState.prevAction,
                     self.currentState.currentQueryRank,
-                    self.get_current_results_length()) )
+                    self.get_current_results_length(),
+                    self.get_current_state_debug_str()) )
 
     def get_current_total_rank(self):
         return self.currentState.totalRank
@@ -340,6 +341,11 @@ class Simulation(Observable):
                 else:
                     return None
 
+    def get_current_state_debug_str( self ):
+        return 'Action: %s. Query rank: %s. Results length: %s. Query index: %s. Total queries: %s. Previous action: %s.' % (
+            self.currentState.prevAction, self.get_current_query_rank(),
+            self.get_current_results_length(), self.currentState.queryIndex + 1,
+            self.reader[ 'get_amount_of_queries' ](), self.get_last_state().prevAction )
 
     def get_next_transition( self ):
 
@@ -379,7 +385,8 @@ class Simulation(Observable):
         if H1.calculateTarget == None:
             raise NoNextTransitionError.NoNextTransitionError( 'Unable to '
                 'determine next transition for action %s. Please check '
-                'simulation description.' % self.currentState.prevAction )
+                'simulation description. %s' % (
+                    self.currentState.prevAction, self.get_current_state_debug_str() ) )
 
         # Notify observers of the fallback transition being accepted
         self.notifyObservers( TransitionAccepted( self.currentState, H1.calculateTarget ) )
@@ -416,6 +423,7 @@ class Simulation(Observable):
             if self.current_query_is_last_query() and self.get_current_query_rank() == self.get_current_results_length():
                 self.v_print( lambda : '   No more queries or results available. Cannot continue.' )
                 return False
+            raise
 
         # Notify observers of transition calculation ending
         self.notifyObservers( NextTransitionCalculationEnd( self.currentState ) )
