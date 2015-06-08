@@ -47,7 +47,7 @@ class SimulationState(object):
     '''
     def __init__(self, sessionId, queryIndex, totalRank, cumulatedGain,
                  cumulatedCost, nextTransition, prevAction, iteration,
-                 currentQueryRank, gains, documentId):
+                 currentQueryRank, gains, documentId, currentQueryCumulatedGain):
         self.transitionsConsidered = []
         self.transitionProbabilities = {}
         self.queryIndex = queryIndex # Index of query (in query file)
@@ -60,6 +60,7 @@ class SimulationState(object):
         self.prevAction = prevAction
         self.iteration = iteration
         self.currentQueryRank = currentQueryRank
+        self.currentQueryCumulatedGain = currentQueryCumulatedGain
         self.documentId = documentId
         self.ready = False # Ready to run next action?
 
@@ -80,7 +81,7 @@ class SimulationState(object):
                                 self.cumulatedGain, self.cumulatedCost, None,
                                 self.nextTransition.target, self.iteration,
                                 self.currentQueryRank, self.gains.copy(),
-                                self.documentId )
+                                self.documentId, self.currentQueryCumulatedGain )
 
     def get_derived_gains(self):
         return self.gains
@@ -89,7 +90,7 @@ class SimulationState(object):
     def get_field_order( includeGains = True ):
         order = [ 'sessionId', 'iteration', 'prevAction', 'queryIndex', 'totalRank',
                 'currentQueryRank', 'cumulatedGain', 'cumulatedCost', 'transitionsConsidered',
-                'transitionProbabilities', 'documentId' ]
+                'transitionProbabilities', 'documentId', 'currentQueryCumulatedGain' ]
         if includeGains:
             order.append( 'gains' )
         return order
@@ -123,7 +124,7 @@ class Simulation(Observable):
                         create_initial_transition( simDesc.initialActionId ), None,
                         self.iteration, 0,
                         self.config.get_initial_derived_gain_values_dict( sessionId ),
-                        None )
+                        None, 0 )
         self.currentState.set_ready()
         self.conditionCallbacks = self.config.get_condition_callbacks()
         self.v_print = self.config.get_verbose_writer()
@@ -208,6 +209,15 @@ class Simulation(Observable):
 
     def reset_current_query_rank(self):
         self.currentState.currentQueryRank = 0
+
+    def reset_current_query_cumulated_gain(self):
+        self.currentState.currentQueryCumulatedGain = 0
+
+    def get_current_cumulated_gain(self):
+        return self.currentState.cumulatedGain
+
+    def get_current_query_cumulated_gain(self):
+        return self.currentState.currentQueryCumulatedGain
 
     def get_current_cumulated_cost(self):
         return self.currentState.cumulatedCost
@@ -472,14 +482,17 @@ class Simulation(Observable):
                 gain = self.simDesc.get_gain_callback_by_id( nextAction.gain )
                 if hasattr( gain, 'callback' ) and gain.callback != None:
                     try:
-                        self.currentState.cumulatedGain += self.config.get_gain_callbacks()[ gain.callback.name ](
+                        gainAmt = self.config.get_gain_callbacks()[ gain.callback.name ](
                                 self, **gain.callbackArgs )
+                        self.currentState.cumulatedGain += gainAmt
+                        self.currentState.currentQueryCumulatedGain += gainAmt
                     except KeyError:
                         raise CallbackError(
                             'Gain callback \'%s\' not found. Check callback mapping. Available callbacks: %s' \
                             % ( gain.callback.name, repr(self.config.get_gain_callbacks().keys())))
                 else:
                     self.currentState.cumulatedGain += gain.value_
+                    self.currentState.currentQueryCumulatedGain += gain.value_
 
                 self.calculate_derived_gains()
 

@@ -20,6 +20,7 @@ def get_callback_map():
     def trigger_next_query( simulation ):
         simulation.increment_current_state_query_index()
         simulation.reset_current_query_rank()
+        simulation.reset_current_query_cumulated_gain()
 
     def flag_as_seen( simulation ):
         simulation.flag_current_document_as_seen()
