@@ -47,7 +47,8 @@ class SimulationState(object):
     '''
     def __init__(self, sessionId, queryIndex, totalRank, cumulatedGain,
                  cumulatedCost, nextTransition, prevAction, iteration,
-                 currentQueryRank, gains, documentId, currentQueryCumulatedGain):
+                 currentQueryRank, gains, documentId, currentQueryCumulatedGain,
+                 currentQueryDocumentsSeen):
         self.transitionsConsidered = []
         self.transitionProbabilities = {}
         self.queryIndex = queryIndex # Index of query (in query file)
@@ -62,6 +63,7 @@ class SimulationState(object):
         self.currentQueryRank = currentQueryRank
         self.currentQueryCumulatedGain = currentQueryCumulatedGain
         self.documentId = documentId
+        self.currentQueryDocumentsSeen = [doc for doc in currentQueryDocumentsSeen]
         self.ready = False # Ready to run next action?
 
     def add_transition_probability(self, pyxbTransition, probabilityValue):
@@ -72,6 +74,7 @@ class SimulationState(object):
 
     def set_document_id( self, documentId ):
         self.documentId = documentId
+        self.currentQueryDocumentsSeen += [documentId]
 
     def set_ready(self):
         self.ready = True
@@ -81,7 +84,8 @@ class SimulationState(object):
                                 self.cumulatedGain, self.cumulatedCost, None,
                                 self.nextTransition.target, self.iteration,
                                 self.currentQueryRank, self.gains.copy(),
-                                self.documentId, self.currentQueryCumulatedGain )
+                                self.documentId, self.currentQueryCumulatedGain,
+                                self.currentQueryDocumentsSeen )
 
     def get_derived_gains(self):
         return self.gains
@@ -90,7 +94,8 @@ class SimulationState(object):
     def get_field_order( includeGains = True ):
         order = [ 'sessionId', 'iteration', 'prevAction', 'queryIndex', 'totalRank',
                 'currentQueryRank', 'cumulatedGain', 'cumulatedCost', 'transitionsConsidered',
-                'transitionProbabilities', 'documentId', 'currentQueryCumulatedGain' ]
+                'transitionProbabilities', 'documentId', 'currentQueryCumulatedGain',
+                'currentQueryDocumentsSeen' ]
         if includeGains:
             order.append( 'gains' )
         return order
@@ -124,7 +129,7 @@ class Simulation(Observable):
                         create_initial_transition( simDesc.initialActionId ), None,
                         self.iteration, 0,
                         self.config.get_initial_derived_gain_values_dict( sessionId ),
-                        None, 0 )
+                        None, 0, [] )
         self.currentState.set_ready()
         self.conditionCallbacks = self.config.get_condition_callbacks()
         self.v_print = self.config.get_verbose_writer()
@@ -212,6 +217,9 @@ class Simulation(Observable):
 
     def reset_current_query_cumulated_gain(self):
         self.currentState.currentQueryCumulatedGain = 0
+
+    def reset_current_query_documents_seen(self):
+        self.currentState.currentQueryDocumentsSeen = []
 
     def get_current_cumulated_gain(self):
         return self.currentState.cumulatedGain
