@@ -190,6 +190,9 @@ class Simulation(Observable):
     def get_last_transition(self):
         return self.history[ -1 ].nextTransition
 
+    def get_current_query_seen_documents(self):
+        return self.currentState.currentQueryDocumentsSeen
+
     def set_current_state_query_index(self, qidx):
         self.currentState.queryIndex = int(qidx)
         self.currentState.rank = 0
@@ -241,8 +244,11 @@ class Simulation(Observable):
     def get_current_document_id(self):
         return self.reader[ 'get_current_document_id' ]( self.currentState.currentQueryRank )
 
+    def get_document_relevance_level(self, docid):
+        return self.reader[ 'get_current_relevance_level' ]( docid )
+
     def get_current_document_relevance_level(self):
-        return self.reader[ 'get_current_relevance_level' ]( self.get_current_document_id() )
+        return self.get_document_relevance_level( self.get_current_document_id() )
 
     def get_current_results_length(self):
         return self.reader[ 'get_current_results_length' ]()
