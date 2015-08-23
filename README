@@ -1,9 +1,10 @@
 IRSIM - Information Retrieval Simulator
-Copyright (C) 2012 Finnish Information Retrieval Experts group, University of Tampere
+Copyright © 2012 Finnish Information Retrieval Experts group, University of Tampere
+Copyright © 2013-2015 Teemu Pääkkönen
 Author: Teemu Pääkkönen
 http://github.com/fire-uta/ir-simulation
 
-README v. 2012.12.06
+README v. 2015.8.23
 
 1. INTRODUCTION
 
@@ -45,7 +46,7 @@ is used.
 In order to use the simulator, the following software must be
 installed:
 
- Python 2.6 or later
+ Python 2.6 or newer (3.0 and newer not supported)
  PyXB python library version 1.2.0 or later
  Matplotlib python library version 1.1.1 or later
 
