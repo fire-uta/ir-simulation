@@ -8,6 +8,7 @@ Created on 27.5.2015
 import re
 import ntpath
 import csv
+from qsdl.simulator.errors.ConfigurationInvalidError import ConfigurationInvalidError
 
 class S: pass # Storage class
 S.readers = {}
@@ -37,11 +38,14 @@ def get_relevance_reader( relevanceFile ):
         with open ( relevanceFile ) as fh:
             result_reader = csv.DictReader( fh, delimiter=',')
             for row in result_reader:
-                (topic_id, docid, rlevel) = (file_info['query_id'],row['docid'],row['trec_judgement'])
-                document = topic_id,docid,rlevel
-                if not rel_docs.has_key(topic_id):
-                    rel_docs[topic_id]={}
-                rel_docs[topic_id][docid] = document
+                try:
+                    (topic_id, docid, rlevel) = (file_info['query_id'],row['docid'].strip(),row['trec_judgement'].strip())
+                    document = topic_id,docid,rlevel
+                    if not rel_docs.has_key(topic_id):
+                        rel_docs[topic_id]={}
+                    rel_docs[topic_id][docid] = document
+                except KeyError as e:
+                    raise ConfigurationInvalidError("Invalid data in relevance file %s: %s" % (relevanceFile, e))
         return rel_docs
 
     rels = parse_relevance_file()
