@@ -138,8 +138,11 @@ def get_session_reader( session, config ):
         return resultReader[ 'get_document_id' ]( get_current_topic(), rank )
 
     def get_current_results_length():
-        (queryReader,resultReader) = get_current_qr_pair()
-        return resultReader[ 'get_results_length' ]( get_current_topic() )
+        try:
+            (queryReader,resultReader) = get_current_qr_pair()
+            return resultReader[ 'get_results_length' ]( get_current_topic() )
+        except KeyError:
+            raise ConfigurationInvalidError( 'Failed to get results length for session \'%s\'. Check result file (\'%s\').' % ( get_session_id(), resultReader['file_name'] ) )
 
     def get_amount_of_queries():
         amount = 0
