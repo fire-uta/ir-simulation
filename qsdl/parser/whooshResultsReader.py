@@ -9,6 +9,7 @@ import re
 import ntpath
 import csv
 import qsdl.simulator.errors.UnknownDocumentError as UnknownDocumentError
+from qsdl.simulator.errors.ConfigurationInvalidError import ConfigurationInvalidError
 
 class S: pass # Storage class
 S.readers = {}
@@ -39,8 +40,8 @@ def get_result_reader( resultFile ):
           result_reader = csv.DictReader( result_file, delimiter=',')
           for row in result_reader:
               qid = file_info['query_id']
-              rank = row['rank']
-              document = (qid, row['docid'], rank)
+              rank = row['rank'].strip()
+              document = (qid, row['docid'].strip(), rank)
               if not result_set.has_key(qid):
                   result_set[str(qid)]={}
               result_set[qid][int(rank)] = document
@@ -60,7 +61,11 @@ def get_result_reader( resultFile ):
                 'No document id found for query id / topic %s, rank %g, in %s' % (topic,rank,resultFile) )
 
     def get_results_length( topic ):
-        return len( results[ topic ] )
+        try:
+            return len( results[ topic ] )
+        except KeyError:
+            raise ConfigurationInvalidError( 'Failed to get results length for topic \'%s\'. Results are available for topics: %s.' % ( topic, results.keys() ) )
+
 
     def can_parse():
         with open( resultFile ) as ires:
@@ -74,6 +79,7 @@ def get_result_reader( resultFile ):
             'get_results_by_id'     :   get_results_by_id,
             'get_document_id'       :   get_document_id,
             'get_results_length'    :   get_results_length,
-            'can_parse'             :   can_parse
+            'can_parse'             :   can_parse,
+            'file_name'             :   resultFile
             }
     return S.readers[ resultFile ]
