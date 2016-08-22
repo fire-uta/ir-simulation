@@ -5,6 +5,7 @@ Created on 6.12.2012
 @author: Teemu Pääkkönen
 '''
 
+import traceback
 import stats
 import matplotlib.pyplot as pyplot
 import qsdl.parser.parsedQSDL as parsedQSDL
@@ -12,6 +13,7 @@ from matplotlib.figure import SubplotParams
 from matplotlib.font_manager import FontProperties
 from itertools import cycle
 
+from qsdl.simulator.errors.IrsimError import IrsimError
 
 class FiguresConfig:
     pass
@@ -70,13 +72,17 @@ def add_default_grid( plt ):
 
 def plot_label_value_list_pairs( plt, labelValueListPairs, xRange ):
     markers_cycler = get_markers_cycler()
-    for (label,yValues) in labelValueListPairs:
-        zorder = None
-        lineWidth = 1.0
-        if label == FiguresConfig.avgPlotName:
-            zorder = len(labelValueListPairs) + 1
-            lineWidth = 5.0
-        plt.plot( xRange[:len(yValues)], yValues, label=label, marker=next(markers_cycler), zorder=zorder, linewidth=lineWidth )
+    for (label, yValues) in labelValueListPairs:
+        try:
+            zorder = None
+            lineWidth = 1.0
+            if label == FiguresConfig.avgPlotName:
+                zorder = len(labelValueListPairs) + 1
+                lineWidth = 5.0
+            plt.plot( xRange[:len(yValues)], yValues, label=label, marker=next(markers_cycler), zorder=zorder, linewidth=lineWidth )
+        except KeyError:
+            raise IrsimError("Error while plotting label %s, values (%s): %s" % (label, yValues, traceback.format_exc()))
+
 
 def add_safety_margin( plt ):
     upper_limit = float(plt.get_ylim()[1])
