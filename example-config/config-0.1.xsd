@@ -121,6 +121,7 @@
    <xs:element name="derived-gains-callbacks" default="customDerivedGainsCallbacks.py" minOccurs="0" type="xs:string" form="qualified" />
    <xs:element name="gain-callbacks" default="customGainCallbacks.py" minOccurs="0" type="xs:string" form="qualified" />
    <xs:element name="trigger-callbacks" default="customTriggerCallbacks.py" minOccurs="0" type="xs:string" form="qualified" />
+   <xs:element name="probability-callbacks" default="customProbabilityCallbacks.py" minOccurs="0" type="xs:string" form="qualified" />
   </xs:sequence>
  </xs:complexType>
 

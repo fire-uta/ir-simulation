@@ -5,7 +5,7 @@ Created on 5.10.2012
 @author: Teemu Pääkkönen
 '''
 
-from qsdl.simulator import defaultCostCallbacks, defaultGainCallbacks, defaultConditionCallbacks
+from qsdl.simulator import defaultCostCallbacks, defaultGainCallbacks, defaultConditionCallbacks, defaultProbabilityCallbacks
 from qsdl.simulator import outputMapper
 from qsdl.simulator import defaultDerivedGainsCallbacks
 from qsdl.simulator import defaultDecays
@@ -279,6 +279,24 @@ class ConfigDescriptor(object):
             else:
                 self.conditionCallbacks = defaultConditionCallbacks.get_callback_map()
         return self.conditionCallbacks
+
+    def get_probability_callbacks(self):
+        if not hasattr(self, 'probabilityCallbacks'):
+            customCallbacks = callbackLoader.get_callback_module(
+                self.get_probability_callbacks_module_name())
+            if customCallbacks is not None:
+                cbMap = defaultProbabilityCallbacks.get_callback_map().copy()
+                cbMap.update(customCallbacks.get_callback_map())
+                self.probabilityCallbacks = cbMap
+            else:
+                self.probabilityCallbacks = defaultProbabilityCallbacks.get_callback_map()
+        return self.probabilityCallbacks
+
+    def get_probability_callbacks_module_name(self):
+        if hasattr(self.doc.files, 'probability_callbacks') and \
+           self.doc.files.probability_callbacks is not None:
+                return self.doc.files.probability_callbacks.rsplit('.', 1)[0]
+        return 'customProbabilityCallbacks'
 
     def get_simulation_file(self):
         return file( self.get_input_directory() + self.doc.files.simulation )

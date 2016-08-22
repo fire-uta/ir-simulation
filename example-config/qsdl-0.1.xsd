@@ -232,6 +232,7 @@
         </xs:complexType>
        </xs:element>
       </xs:sequence>
+      <xs:element name="callback" type="qsdl:callback-with-arguments" form="qualified" />
       <xs:element name="value" type="qsdl:probability-value" form="qualified" />
      </xs:choice>
      <xs:attribute name="id" type="xs:string" use="required" />

@@ -340,6 +340,9 @@ class Simulation(Observable):
                     return nextTarget
                 else:
                     return None
+            elif hasattr(probability, 'callback') and probability.callback is not None:
+                probability_value = self.execute_probability_callback(probability.callback)
+                return self.get_transition_by_probability(probability_value, decay, H1, transition)
             else:
                 # Probability is conditional
                 skipToNextTransition = False
@@ -364,6 +367,14 @@ class Simulation(Observable):
                     return nextTarget
                 else:
                     return None
+
+    def execute_probability_callback(self, callback_definition):
+        callback_name = callback_definition.name
+        callback_function = self.get_probability_callback_function_by_name(callback_name)
+        return callback_function(self, **callback_definition.packed_args)
+
+    def get_probability_callback_function_by_name(self, callback_name):
+        return self.simDesc.get_probability_callback_by_name(callback_name)
 
     def get_current_state_debug_str( self ):
         return 'Action: %s. Query rank: %s. Results length: %s. Query index: %s. Total queries: %s. Previous action: %s.' % (

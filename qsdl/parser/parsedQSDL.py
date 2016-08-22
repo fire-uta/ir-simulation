@@ -133,11 +133,17 @@ class SimDescriptor(object):
                     elseif.conditionCallback = self.get_condition_callback_by_name(elseif.conditionRef.callback.name)
                     createCallbackLambda( elseif )
 
+            if probability.callback:
+                probability.callback.packed_args = pack_callback_arguments(probability.callback)
+
     def get_action_by_id(self, id_):
         return self.actions[ id_ ]
 
     def get_condition_by_id(self, id_):
-        return self.conditions[ id_ ]
+        try:
+            return self.conditions[ id_ ]
+        except KeyError:
+            raise TransitionError('No condition with id \'%s\' found. Please check simulation description.' % id_)
 
     def get_transition_source_for_action_id(self, id_ ):
         try:
@@ -146,7 +152,10 @@ class SimDescriptor(object):
             raise TransitionError( 'No transitions defined from action id \'%s\'. Please check simulation description.' % id_ )
 
     def get_probability_for_probability_id(self, id_):
-        return self.probabilities[ id_ ]
+        try:
+            return self.probabilities[ id_ ]
+        except KeyError:
+            raise TransitionError('No probability with id \'%s\' found. Please check simulation description.' % id_)
 
     def get_decay_by_id(self, id_):
         try:
@@ -174,7 +183,6 @@ class SimDescriptor(object):
                 'Condition callback \'%s\' not found. Check callback mapping. Available callbacks: %s' \
                 % ( id_, repr(self.config.get_condition_callbacks().keys())))
 
-
     def get_decay_function_by_name(self, name):
         try:
             return self.config.get_decays()[ name ]
@@ -183,3 +191,10 @@ class SimDescriptor(object):
                 'Decay callback \'%s\' not found. Check callback mapping. Available callbacks: %s' \
                 % ( name, repr(self.config.get_decays().keys())))
 
+    def get_probability_callback_by_name(self, callback_name):
+        try:
+            return self.config.get_probability_callbacks()[callback_name]
+        except KeyError:
+            raise CallbackError(
+                'Probability callback \'%s\' not found. Check callback mapping. Available callbacks: %s' \
+                % (callback_name, repr(self.config.get_probability_callbacks().keys())))
